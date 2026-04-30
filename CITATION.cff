@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+title: "VRA_Controlador — POC em ESP32 do Controlador de Aplicação em Taxa Variável"
+message: "Para citar este software, utilize os metadados abaixo."
+authors:
+  - family-names: Casagrande
+    given-names: Edson
+    affiliation: "Escola Politécnica, Universidade de São Paulo (POLI/USP)"
+type: software
+version: "1.0.0"
+date-released: "2026-04-30"
+license: MIT
+url: "https://github.com/edcasag/VRA_Controlador"
+repository-code: "https://github.com/edcasag/VRA_Controlador"
+keywords:
+  - "variable rate application"
+  - "VRA"
+  - "precision agriculture"
+  - "agricultura familiar"
+  - "ESP32"
+  - "embedded systems"
+  - "PID controller"
+  - "Google Earth"
+  - "KML"
+  - "IDW interpolation"
+abstract: >-
+  POC em ESP32 do controlador de Aplicação em Taxa Variável (VRA),
+  complementar ao VRA_Simulador (Python). Lê zonas de manejo de um
+  KML do Google Earth, executa a Lógica Hierárquica (polígonos de
+  exclusão, polígonos de inclusão por menor área, IDW, talhão como
+  dose-base) e aciona um atuador linear via PID com modelo de planta
+  de 1ª ordem. Acompanha a dissertação de mestrado de Edson Casagrande
+  na POLI/USP e o artigo apresentado no SBIAGRO 2025.
+references:
+  - type: conference-paper
+    title: "Controlador de Taxa Variável para Distribuidores Agrícolas baseado em Google Earth e Interpolação IDW"
+    authors:
+      - family-names: Casagrande
+        given-names: Edson
+      - family-names: Cugnasca
+        given-names: Carlos Eduardo
+    collection-title: "Anais do XV Congresso Brasileiro de Agroinformática (SBIAGRO 2025)"
+    year: 2025
