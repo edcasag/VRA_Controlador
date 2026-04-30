@@ -8,6 +8,8 @@
 
 #include <algorithm>
 
+#include "Pid.h"   // clamp_d (std::clamp ausente no toolchain Xtensa-ESP32)
+
 namespace vra {
 
 // Tabela posição%(curso) -> abertura física (fração 0..1 do escoamento máximo).
@@ -54,7 +56,7 @@ inline double abertura_em(double posicao_pct) {
 
 // Inverso: posição em função da abertura desejada.
 inline double posicao_para_abertura(double abertura_alvo) {
-    abertura_alvo = std::clamp(abertura_alvo, 0.0, 1.0);
+    abertura_alvo = clamp_d(abertura_alvo, 0.0, 1.0);
     for (int i = 0; i < 10; ++i) {
         const double a0 = TABELA_ABERTURA[i].abertura;
         const double a1 = TABELA_ABERTURA[i + 1].abertura;

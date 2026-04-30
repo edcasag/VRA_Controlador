@@ -5,6 +5,11 @@
 
 namespace vra {
 
+// libstdc++ do toolchain Xtensa-ESP32 (GCC 8.4) nao expoe std::clamp.
+inline double clamp_d(double v, double lo, double hi) {
+    return std::min(std::max(v, lo), hi);
+}
+
 class Pid {
 public:
     Pid(double kp, double ki, double kd,
@@ -18,10 +23,10 @@ public:
         const double erro  = setpoint - leitura;
         const double p     = kp_ * erro;
         integ_            += ki_ * erro * dt_;
-        integ_             = std::clamp(integ_, saida_min_, saida_max_);
+        integ_             = clamp_d(integ_, saida_min_, saida_max_);
         const double d     = kd_ * (erro - erro_anterior_) / dt_;
         erro_anterior_     = erro;
-        return std::clamp(p + integ_ + d, saida_min_, saida_max_);
+        return clamp_d(p + integ_ + d, saida_min_, saida_max_);
     }
 
 private:

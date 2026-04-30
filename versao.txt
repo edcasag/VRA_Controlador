@@ -378,3 +378,25 @@ Sessão 2026-04-29 — Etapa 6 (compilacao): fix conflito DEG_TO_RAD
 
 (d) Pendencia para o autor:
     - rodar 'pio run' novamente (env: analise) e reportar saida.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 6 — fix std::clamp (env: tests)
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/src/Pid.h        (helper inline clamp_d via std::min/std::max)
+    - _esp32/src/Atuador.h    (passa a usar clamp_d, inclui Pid.h)
+
+(b) Diagnostico: env:analise compilou OK (RAM 6,6%, Flash 27,6%); env:tests
+    falha porque a libstdc++ do toolchain-xtensa-esp32 8.4.0 nao expoe
+    std::clamp (ausencia documentada na libstdc++ stripada do Xtensa).
+    GCC suporta C++17 mas o header <algorithm> da libstdc++ vendored no
+    toolchain nao tem std::clamp.
+
+    Correcao: clamp_d(v, lo, hi) = std::min(std::max(v, lo), hi),
+    inline em Pid.h, reusada em Atuador.h. Comentario na origem
+    documentando o porque.
+
+(c) Pendencia para o autor:
+    - rodar novamente 'pio run -e tests' e depois 'pio run -e poc'
+      para fechar o ciclo de fixes de compilacao.
