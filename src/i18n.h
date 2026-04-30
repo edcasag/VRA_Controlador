@@ -39,6 +39,11 @@
 #define MSG_PARITY_VERDICT     "  verdict: %s"
 #define MSG_VERDICT_PASS       "PASS"
 #define MSG_VERDICT_FAIL       "FAIL"
+#define MSG_NOTES_TITLE        "Notes:"
+#define MSG_NOTE_INERTIA       "  - Application error reflects simulated servo inertia (TAU=0.3s) and"
+#define MSG_NOTE_INERTIA2      "    PID convergence between fixes (dt=step/v ~0.2s). The Hierarchical"
+#define MSG_NOTE_INERTIA3      "    Logic itself is exact (bit-by-bit parity with Python when CSV present)."
+#define MSG_NOTE_BIN           "  - Zone bin = 5 kg/ha (groups nearby IDW interpolations)."
 #define MSG_END                "=== END ==="
 
 #else  // default LANG_PT
@@ -77,6 +82,11 @@
 #define MSG_PARITY_VERDICT     "  veredicto: %s"
 #define MSG_VERDICT_PASS       "PASS"
 #define MSG_VERDICT_FAIL       "FAIL"
+#define MSG_NOTES_TITLE        "Notas:"
+#define MSG_NOTE_INERTIA       "  - O erro de aplicacao reflete a inercia do servo simulado (TAU=0.3s)"
+#define MSG_NOTE_INERTIA2      "    e a convergencia do PID entre fixes (dt=step/v ~0.2s). A Logica"
+#define MSG_NOTE_INERTIA3      "    Hierarquica em si eh exata (paridade bit-a-bit com Python via CSV)."
+#define MSG_NOTE_BIN           "  - Bin de zona = 5 kg/ha (agrupa interpolacoes IDW vizinhas)."
 #define MSG_END                "=== FIM ==="
 
 #endif

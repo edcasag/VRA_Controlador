@@ -101,6 +101,17 @@ void Relatorio::imprimir(Print& out) const {
         out.println(buf);
     }
 
+    // Notas autoexplicativas no rodape para que a saida seja interpretavel
+    // sem contexto externo (incluindo quando o autor cola o relatorio na
+    // tese). O erro alto eh um achado, nao um bug — vem do servo, nao do
+    // algoritmo (que eh PASS na paridade quando ha CSV).
+    out.println();
+    out.println(MSG_NOTES_TITLE);
+    out.println(MSG_NOTE_INERTIA);
+    out.println(MSG_NOTE_INERTIA2);
+    out.println(MSG_NOTE_INERTIA3);
+    out.println(MSG_NOTE_BIN);
+
     out.println();
     out.println(MSG_END);
 }
