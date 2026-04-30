@@ -5,9 +5,9 @@ Etapas da seção "Próximo passo imediato" do plano
 Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
 
 ================================================================================
-v1.0.0 FECHADA em 2026-04-30 (etapas 1-8 completas).
-Próxima ação: etapa 9 (publicação no GitHub edcasag/VRA_Controlador).
-Detalhes da próxima sessão no rodapé deste arquivo.
+v1.0.0 PUBLICADA em 2026-04-30 (etapas 1-9 completas).
+Repo publico: https://github.com/edcasag/VRA_Controlador (tag v1.0.0).
+Proxima acao: etapa 10 (link cruzado no _python/README.md) — opcional.
 ================================================================================
 
 [x] 1. Inspecionar Receita.h e Calc.h do Syncat (D:\SynCAT\SynCAT\CNC\MINI\
@@ -133,24 +133,23 @@ Detalhes da próxima sessão no rodapé deste arquivo.
              nao modela isso porque assume aplicacao instantanea da
              dose-alvo. POC ESP32 cumpre o papel de complementar.
 
-[ ] 9. Publicação do repositório (PROXIMA SESSAO):
-         - criar repo público novo edcasag/VRA_Controlador no GitHub web
-           (autor faz; suficiente repo vazio, sem README)
-         - configurar dual-repo via subtree push a partir de _esp32/
-           (mesmo padrao usado com _python/ ↔ VRA_Simulador):
-             git subtree push --prefix=_esp32 \
-               git@github.com:edcasag/VRA_Controlador.git main
-         - tag v1.0.0 + release notes no GitHub web
-         - opcional: DOI Zenodo (precisa ativar webhook GitHub<->Zenodo
-           antes da release; mesmo padrao do VRA_Simulador
-           DOI 10.5281/zenodo.19893499)
-
-       Pre-requisito antes da publicacao:
-         - autor recompilar e capturar Sitio_Palmar standalone com bin
-           de 5 kg/ha + notas autoexplicativas no rodape (fix da ultima
-           sub-iteracao). Substituir placeholder na Captura 2 de
-           docs/sample_output_sim.txt. Recompilar = 'pio run -t upload',
-           KMLs/CSVs ja estao no FS.
+[x] 9. Publicacao do repositorio:
+       Concluido 2026-04-30 — repo publico criado pelo autor
+       (https://github.com/edcasag/VRA_Controlador, vazio, MIT, publico).
+       Arquivos de publicacao adicionados em _esp32/:
+         - LICENSE (MIT, identico ao _python/LICENSE)
+         - README.md (PT-BR + English, ~13 KB)
+         - CITATION.cff (metadados + bibref SBIAGRO 2025)
+         - docs/SBIAGRO2025_artigo.pdf (550 KB)
+         - docs/SBIAGRO2025_apresentacao.pdf (2.2 MB)
+       Dual-repo configurado via subtree split + force-push:
+         - git subtree split --prefix=_esp32 -b vra-controlador-export
+         - git push <repo> vra-controlador-export:main --force
+         - tag v1.0.0 criada no remoto.
+       Verificacao: HEAD = main = v1.0.0 = 5b893de no remoto.
+       Opcional: ativar webhook GitHub<->Zenodo + criar Release v1.0.0
+       pela web do GitHub para gerar DOI (mesmo padrao do VRA_Simulador
+       DOI 10.5281/zenodo.19893499). Adiar para sessao dedicada.
 
 [ ] 10. Link cruzado no VRA_Simulador (Python):
          - atualizar _python/README.md com link para VRA_Controlador
@@ -158,6 +157,10 @@ Detalhes da próxima sessão no rodapé deste arquivo.
            ideal; ESP32 = POC com atuador físico (abertura, PID, fator
            de escoamento, saturação por vazão máxima — não modelados no
            Python)
+         - publicar via subtree push do _python/ para o VRA_Simulador
+           remoto (mesmo padrao da etapa 9; provavel que ja exista a
+           configuracao). Atualizar tambem o CITATION.cff do VRA_Simulador
+           se for adicionar bibref ao SBIAGRO ou ao VRA_Controlador.
 
 [ ] 11+. Melhorias futuras (v1.1+, opcionais):
          - boustrofedon completo no ESP32 (offset_polygon + headland_pass,

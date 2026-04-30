@@ -811,3 +811,69 @@ Sub-iteracao etapa 8 — bin de 5 kg/ha + captura Sitio Palmar standalone
     - capturar o relatorio com bin de 5 kg/ha e colar substituindo
       o placeholder na Captura 2 de docs/sample_output_sim.txt.
     - se OK, autorizar etapa 9 (publicacao GitHub).
+
+================================================================================
+Sessao 2026-04-30 — Etapa 9 (publicacao no GitHub)
+================================================================================
+
+(a) Arquivos criados (em _esp32/, todos para o repo publico):
+    - LICENSE                         (MIT, identico ao _python/LICENSE)
+    - README.md                       (PT-BR + English, ~13 KB)
+    - CITATION.cff                    (metadados + bibref SBIAGRO 2025)
+    - docs/SBIAGRO2025_artigo.pdf         (550 KB, copiado de _referencia/)
+    - docs/SBIAGRO2025_apresentacao.pdf   (2.2 MB, copiado de _referencia/)
+
+    Atualizados:
+    - _esp32/todo.txt                 (etapa 9 marcada [x])
+    - _esp32/versao.txt               (esta sessao)
+
+(b) Dependencias: nenhuma (so artefatos de doc).
+
+(c) Operacoes git executadas (a partir do toplevel da tese):
+    1. git add _esp32/{LICENSE,README.md,CITATION.cff,docs/SBIAGRO2025_*.pdf}
+    2. git commit -m "POC VRA_Controlador: README + LICENSE + CITATION + SBIAGRO 2025 (etapa 9)"
+       Resultou em commit ea79f05 no main da tese.
+    3. git subtree split --prefix=_esp32 -b vra-controlador-export
+       Criou branch local com 15 commits do POC, com _esp32/ promovido
+       para a raiz. Commit final da split: 5b893de.
+    4. git push https://github.com/edcasag/VRA_Controlador.git \
+              vra-controlador-export:main --force
+       Force-push substituiu o commit auto-gerado do LICENSE inicial
+       do GitHub (8955534) pelo nosso historico completo (5b893de).
+    5. git tag v1.0.0-vra-controlador vra-controlador-export
+       git push <repo> refs/tags/v1.0.0-vra-controlador:refs/tags/v1.0.0
+       Tag v1.0.0 criada no remoto publico.
+
+    Verificacao final do remoto (git ls-remote):
+      HEAD              = 5b893de
+      refs/heads/main   = 5b893de
+      refs/tags/v1.0.0  = 5b893de
+
+(d) Decisoes tomadas:
+    1. PDFs do SBIAGRO 2025 incluidos em docs/ (artigo + apresentacao).
+       Difere do padrao do _python/ (que nao leva PDFs do CEA), mas faz
+       sentido aqui porque o artigo SBIAGRO descreve exatamente o
+       controlador deste repo. Decisao registrada na mensagem do commit.
+
+    2. Tag local v1.0.0-vra-controlador (sufixada) para evitar colisao
+       com futuras tags v1.0.0 da tese ou do _python/. No remoto publico
+       aparece como v1.0.0 simples.
+
+    3. Force-push autorizado pelo autor — prática convencional para
+       repo recém-criado com unico commit auto-gerado pelo GitHub
+       (LICENSE), sem colaboradores nem stars/forks externos.
+
+(e) Pendencias para o autor:
+    - opcional: ativar webhook GitHub<->Zenodo antes de criar release v1.0.0
+      pela web do GitHub (mesmo padrao do VRA_Simulador
+      DOI 10.5281/zenodo.19893499). Apos ativar, fazer "Release" da tag
+      v1.0.0 — Zenodo gera DOI automaticamente. Se feito, atualizar:
+        * CITATION.cff (adicionar campo `doi:`)
+        * README.md (badge DOI no topo)
+    - autorizar etapa 10: link cruzado no _python/README.md apontando
+      para VRA_Controlador (e nota sobre complementaridade — texto
+      simetrico ao que ja temos no README do VRA_Controlador).
+    - opcional: limpar branch local 'vra-controlador-export' apos
+      consolidar (git branch -D vra-controlador-export). Recomendo
+      manter por ora — proxima sessao de sync (mais commits no _esp32/)
+      pode reusar com 'git subtree split' incremental.
