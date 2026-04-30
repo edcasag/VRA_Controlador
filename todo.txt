@@ -31,10 +31,14 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
        (TABELA_ABERTURA + posicao_alvo_para_taxa, compartilhado entre
        poc e tests). Detalhes em versao.txt.
 
-[ ] 4. Configurar platformio.ini com 3 envs:
+[x] 4. Configurar platformio.ini com 3 envs:
          - analise (default), poc, tests
          - board esp32doit-devkit-v1, framework arduino, C++17
          - filesystem littlefs em analise e poc
+       Concluído 2026-04-29 — também criado _esp32/.gitignore para
+       artefatos de build PlatformIO. Filesystem littlefs habilitado
+       também em tests (testes 3 e 9 leem Sitio_Palmar.kml). Detalhes
+       em versao.txt.
 
 [ ] 5. Copiar dependências e dados:
          - tinyxml2 (vendored) em _esp32/lib/tinyxml2/

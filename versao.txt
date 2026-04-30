@@ -249,3 +249,44 @@ Sessão 2026-04-29 — Etapa 3 (entry points)
     - confirmar valores em Atuador.h (TABELA_ABERTURA, FATOR_ESCOAMENTO_KG_MIN,
       LARGURA_M, V_MIN_OPERACAO_KMH) — atualmente são placeholders do plano,
       a serem refinados após calibração de campo (cal1/cal2/cal3).
+
+================================================================================
+Sessão 2026-04-29 — Etapa 4 (platformio.ini + .gitignore)
+================================================================================
+
+(a) Arquivos criados:
+    - _esp32/platformio.ini   (~30 linhas)
+    - _esp32/.gitignore       (~15 linhas)
+
+    Atualizados:
+    - _esp32/todo.txt         (etapa 4 marcada como [x])
+    - _esp32/versao.txt       (esta seção)
+
+(b) Dependências introduzidas: nenhuma.
+
+(c) Decisões de design tomadas:
+
+    1. board = esp32doit-devkit-v1, framework = arduino, C++17 (gnu++17 para
+       habilitar designated initializers e structured bindings se precisarmos
+       em iterações futuras). monitor_speed = 115200 conforme plano.
+
+    2. monitor_filters = esp32_exception_decoder na seção [env]:
+       - aplica a todos os envs; útil para diagnosticar panics no
+         poc (ex.: NMEA com formato inesperado).
+
+    3. build_src_filter por env: cada main_* só compila no seu env, o
+       restante (Geometria.h, Pid.h, Kml.{h,cpp}, LogicaHierarquica.{h,cpp},
+       Atuador.h) é compartilhado nos três.
+
+    4. board_build.filesystem = littlefs também no env:tests (não só
+       analise/poc). Razão: testes 3 (área do Sítio Palmar) e 9 (bench
+       de latência) carregam Sitio_Palmar.kml do FS.
+
+    5. .gitignore mínimo: .pio/, .pioenvs/, .piolibdeps/ (build do
+       PlatformIO), .vscode/, .idea/ (IDE), build/, *.elf, *.bin, *.map.
+       Não inclui data/ — KMLs são versionados (entram na etapa 5).
+
+(d) Pendências para o autor:
+    - autorizar etapa 5: vendor de tinyxml2 em _esp32/lib/ e cópia dos
+      KMLs (Sitio_Palmar.kml, ensaio_abcd.kml, talhao_completo.kml) para
+      _esp32/data/ com nomes em underscore.
