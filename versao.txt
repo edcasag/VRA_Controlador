@@ -530,3 +530,48 @@ Sub-iteracao etapa 6 — fix teste 5 (IDW simetrico) + captura BUILD_TESTS
     - autorizar etapa 7: validacao cruzada Python <-> ESP32 (5 pontos
       do Sitio Palmar, dose_at vs dose, tolerancia 1e-6, documentar em
       docs/cross_validation_python_vs_esp32.md).
+
+================================================================================
+Sessao 2026-04-30 — Etapa 7 (validacao cruzada Python <-> ESP32)
+================================================================================
+
+(a) Arquivos criados:
+    - _esp32/docs/cross_validation_python_vs_esp32.md  (~80 linhas)
+
+    Atualizados:
+    - _esp32/todo.txt    (etapa 7 marcada [x]; etapa 8 nova: BUILD_SIM;
+                          publicacao deslocada para 9, link cruzado para 10)
+    - _esp32/versao.txt  (esta sessao)
+
+(b) Dependencias: nenhuma.
+
+(c) Resultado:
+    Paridade 5/5 confirmada. Os 5 pontos cobrem 5 cenarios distintos
+    do Algoritmo 1 (talhao IDW single-sample, polig inclusao Poor->Good,
+    polig inclusao Nobre, polig exclusao Sede, circulo exclusao). Origem
+    da projecao identica nos dois lados:
+        Python: lat=-23.3521368 lon=-46.9454401  (primeiro vertice Field)
+        ESP32:  lat=-23.3521368 lon=-46.9454401  (primeiro vertice Field)
+
+    Notas registradas no markdown:
+    - 4/5 cenarios sao "binarios por construcao" (retornam r.dose ou 0
+      sem aritmetica fracionaria) — paridade trivial por design.
+    - 1/5 (centroide do talhao) cai em IDW mas com 1 sample dentro do
+      raio, degenerando para o valor literal do sample.
+    - Validacao numerica rigorosa de IDW INTERPOLADO (multiplos samples
+      contribuindo, dose fracionaria) fica coberta pelo BUILD_SIM da
+      proxima etapa.
+
+(d) Decisao do autor:
+    - encerrar etapa 7 sem nova captura de hardware com 6 casas decimais
+      (paridade visual e suficiente para os cenarios atuais).
+    - planejar etapa 8 NOVA: BUILD_SIM — simulacao COMPLETA num ESP32
+      DevKit V1 standalone, sem nenhum periferico externo. GPS sintetico
+      (trajetoria boustrofedon dentro do talhao) + planta de 1a ordem
+      para o atuador respondendo ao PID + agregacao de erro por zona +
+      relatorio final estilo coverage_report.py do Python. Esse modo
+      vira o DEFAULT publicavel da v1.0.0.
+
+(e) Pendencia para o autor:
+    - autorizar plano detalhado da etapa 8 (BUILD_SIM) — proposta
+      apresentada no chat antes de codar.

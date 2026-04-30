@@ -69,17 +69,33 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
          - BUILD_POC ficou opcional para v0.1 (precisa GPS + atuador
            físico montados em bancada).
 
-[ ] 7. Validação cruzada Python ↔ ESP32:
+[x] 7. Validação cruzada Python ↔ ESP32:
          - rodar dose_at (Python) e dose (ESP32) para 5 pontos do
            Sitio_Palmar.kml; tolerância 1e-6
          - documentar em docs/cross_validation_python_vs_esp32.md
+       Concluído 2026-04-30 — paridade 5/5 confirmada. Os 5 cenários
+       atuais retornam valor exato por construção (4 binários +
+       1 IDW degenerado em sample único). Validação numérica de IDW
+       INTERPOLADO (múltiplos samples) fica coberta pelo modo SIM
+       da próxima etapa, que percorre o talhão com trajetória densa.
 
-[ ] 8. Publicação do repositório:
+[ ] 8. BUILD_SIM — simulação completa standalone (proposta nova):
+         - criar entry point main_sim.cpp (env: BUILD_SIM)
+         - GPS sintético (trajetória boustrofédon dentro do talhão)
+         - planta de 1ª ordem para o atuador (responde ao PID)
+         - agrega erro por zona; relatório final estilo
+           coverage_report.py do Python
+         - marca BUILD_SIM como default no platformio.ini para que
+           qualquer ESP32 DevKit V1 rode standalone, sem hardware
+         - capturar saída em docs/sample_output_sim.txt
+         - planejado para encerrar a v1.0.0 publicável.
+
+[ ] 9. Publicação do repositório:
          - criar repo público novo edcasag/VRA_Controlador
          - commit inicial, push, release v1.0.0
          - estratégia dual-repo via subtree push (mesma do VRA_Simulador)
 
-[ ] 9. Link cruzado no VRA_Simulador (Python):
+[ ] 10. Link cruzado no VRA_Simulador (Python):
          - atualizar _python/README.md com link para VRA_Controlador
          - nota sobre complementaridade: Python = simulação algorítmica
            ideal; ESP32 = POC com atuador físico (abertura, PID, fator
