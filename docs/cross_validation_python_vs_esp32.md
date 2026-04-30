@@ -16,7 +16,7 @@ com origem no primeiro vértice do `Field`), mesmos parâmetros IDW
 (potência 2, raio 100 m, `d_min=0,5 m`), mesma hierarquia (círculo →
 polígono exclusão → polígono inclusão menor área → IDW → talhão
 dose-base → 0). Avaliados 5 pontos cobrindo cenários distintos do
-Algoritmo 1 (Cap. 6 §6.3 da dissertação).
+Algoritmo 1 (artigo SBIAGRO 2025).
 
 ## Resultado
 

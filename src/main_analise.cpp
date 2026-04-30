@@ -1,6 +1,6 @@
 // Modo BUILD_ANALISE — sem hardware extra. Carrega KML do LittleFS, imprime
 // sumário, CSV de auditoria e doses para 9 pontos demo cobrindo os 7 cenários
-// do Algoritmo 1 (Cap. 6 §6.3 da tese). Selecionado via build_flags em
+// do Algoritmo 1 (artigo SBIAGRO 2025). Selecionado via build_flags em
 // platformio.ini: -DBUILD_ANALISE.
 #ifdef BUILD_ANALISE
 #pragma message "Compilando modo: BUILD_ANALISE"
@@ -28,7 +28,7 @@ vra::Ponto centroidePoligono(const std::vector<vra::Ponto>& v) {
 void imprimirCabecalhoPontos(Print& out) {
     out.println();
     out.println(F("=== 9 PONTOS DEMO ==="));
-    out.println(F("Cenarios cobertos (Algoritmo 1, Cap.6 §6.3 da tese):"));
+    out.println(F("Cenarios cobertos (Algoritmo 1, artigo SBIAGRO 2025):"));
     out.println(F("  1. Regiao circular (qualquer dose)"));
     out.println(F("  2. Poligono de exclusao (dose==0)"));
     out.println(F("  3. Poligono de inclusao (dose>0)"));

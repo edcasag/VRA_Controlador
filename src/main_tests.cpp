@@ -1,5 +1,5 @@
 // Modo BUILD_TESTS — 9 testes cronometrados, paridade com Python (1e-6).
-// O teste 9 (bench de latência) reforça o Cap. 7 da tese com dado
+// O teste 9 (bench de latência) reforça o do artigo SBIAGRO 2025 com dado
 // reproduzível por terceiros, sem depender do Syncat proprietário.
 // Selecionado via build_flags em platformio.ini: -DBUILD_TESTS.
 #ifdef BUILD_TESTS
@@ -292,7 +292,7 @@ void teste_8_canonico() {
 }
 
 // ---------------------------------------------------------------------------
-// 9. Latência ponta-a-ponta — bench reproduzível para o Cap. 7 da tese.
+// 9. Latência ponta-a-ponta — bench reproduzível para o artigo SBIAGRO 2025.
 // ---------------------------------------------------------------------------
 void teste_9_latencia() {
     vra::Kml kml;

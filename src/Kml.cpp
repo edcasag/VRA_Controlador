@@ -17,7 +17,7 @@ namespace vra {
 namespace {
 
 // Resultado da classificação do <name> de um Placemark, conforme Tab. 4
-// (cap. 6 da tese).
+// (artigo SBIAGRO 2025).
 enum class TipoFeature { Invalido, Field, Label, RateOnly, Circle, CircleSemLabel };
 struct NomeClassificado {
     TipoFeature tipo = TipoFeature::Invalido;

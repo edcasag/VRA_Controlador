@@ -9,7 +9,7 @@ Repo:     edcasag/VRA_Controlador (a ser criado; dual-repo via subtree push,
           espelhando edcasag/VRA_Simulador, DOI 10.5281/zenodo.19893499).
 Local:    _esp32/ (irmão de _python/)
 
-Padrão (mesmo de _revisao/versao.txt da tese):
+Padrão (mesmo de _revisao/versao.txt):
   Cada sessão registra:
     (a) arquivos modificados / criados
     (b) novas dependências (libs vendored, KMLs, etc.)
@@ -31,7 +31,7 @@ Sessão 2026-04-29 — Bootstrap do POC
     - confirmado escopo do plano: classes só Kml, LogicaHierarquica, Pid;
       sem IHM, BT, WiFi, OTA, display; 3 envs PlatformIO (analise default,
       poc, tests); KMLs em LittleFS com underscore no nome.
-    - terminologia canônica do Cap. 6 da tese (Kml, RegiaoPoligonal,
+    - terminologia canônicao artigo SBIAGRO 2025 (Kml, RegiaoPoligonal,
       RegiaoCircular, PontoReferencia, LogicaHierarquica). Inspeção do
       Syncat será só conceitual.
     - leitura do Python (_python/src/main.py e _python/src/coverage_report.py)
@@ -64,7 +64,7 @@ Sessão 2026-04-29 — Etapa 1 (inspeção conceitual do Syncat)
       estáticos (MAX_GEO_POINTS=1000, MAX_REGIONS=10). Lat/lon cruamente,
       sem projeção. Globais via ponteiro extern.
       → POC: separação limpa em Talhao / RegiaoPoligonal / RegiaoCircular /
-        PontoReferencia, fiel à Tabela 4 do Cap. 6 da tese. Métrica IDW
+        PontoReferencia, fiel à Tabela 4 do artigo SBIAGRO 2025. Métrica IDW
         única (Euclidiana p=2, raio 100 m, d_min 0,5 m). Só KML. Sem
         globais (referência por parâmetro nas tasks). std::vector sem
         teto estático. Lat/lon projetados para x,y na entrada da
@@ -95,7 +95,7 @@ Sessão 2026-04-29 — Etapa 1 (inspeção conceitual do Syncat)
 
 (d) Pendências para o autor:
     - autorizar etapa 2: escrita do zero de Geometria.h, Kml.{h,cpp},
-      LogicaHierarquica.{h,cpp}, Pid.h, com terminologia da tese.
+      LogicaHierarquica.{h,cpp}, Pid.h, com terminologiao artigo SBIAGRO 2025.
 
 ================================================================================
 Sessão 2026-04-29 — Etapa 2 (escrita das classes-base)
@@ -159,7 +159,7 @@ Sessão 2026-04-29 — Etapa 2 (escrita das classes-base)
          (etapa 3).
 
 (d) Pendências para o autor:
-    - validar nomes contra a Tabela 4 do Cap. 6 da tese (Talhao,
+    - validar nomes contra a Tabela 4 do artigo SBIAGRO 2025 (Talhao,
       RegiaoPoligonal, RegiaoCircular, PontoReferencia) e a estrutura
       de classes (Kml, LogicaHierarquica, Pid). Ajustar se a Tab. 4
       usar terminologia ligeiramente diferente.
@@ -520,7 +520,7 @@ Sub-iteracao etapa 6 — fix teste 5 (IDW simetrico) + captura BUILD_TESTS
         Criterio do Cap. 7 (<= 5 ms): atendido com folga ~68x.
 
     Numero de latencia (73,4 us / 92 us p95) eh dado bruto reproduzivel
-    por terceiros, citavel no Cap. 7 da tese sem dependencia do Syncat
+    por terceiros, citavel no artigo SBIAGRO 2025 sem dependencia do Syncat
     proprietario.
 
 (d) Pendencia para o autor:
@@ -729,7 +729,7 @@ Sub-iteracao etapa 8 — fixes pos-primeira-execucao no HW
       - LogicaHierarquica::dose: ~20 us/chamada
       - Pid::atualizar:           ~5 us/iteracao
 
-(d) Achados cientificos para a tese (Cap. 7 Resultados / Cap. 8 Discussao):
+(d) Achados cientificos para o artigo (Resultados / Discussão do artigo SBIAGRO 2025):
 
     1. Erro de aplicacao alto NAO vem do algoritmo:
        Zona A (90 kg/ha) -> aplicado 57.28 (-36.35%)
@@ -762,7 +762,7 @@ Sub-iteracao etapa 8 — fixes pos-primeira-execucao no HW
       sessao.
     - opcional: ajuste fino do PID/planta para melhorar erro de
       aplicacao. Mas nota cientifica: erro alto eh um achado, nao um
-      bug — mostra a relevancia do POC ESP32 para a tese.
+      bug — mostra a relevancia do POC ESP32 para o artigo.
 
 --------------------------------------------------------------------------------
 Sub-iteracao etapa 8 — bin de 5 kg/ha + captura Sitio Palmar standalone
@@ -787,7 +787,7 @@ Sub-iteracao etapa 8 — bin de 5 kg/ha + captura Sitio Palmar standalone
     interpolacoes da mesma vizinhanca de samples; em ensaio_abcd
     (doses inteiras 60/75/90/100) nao agrega nada.
 
-(c) Achado adicional do Sitio Palmar standalone (Cap. 7 da tese):
+(c) Achado adicional do Sitio Palmar standalone (do artigo SBIAGRO 2025):
 
     Latencia LogicaHierarquica::dose: ~71,4 us / chamada
     em cenario realista com hierarquia COMPLETA:
@@ -798,7 +798,7 @@ Sub-iteracao etapa 8 — bin de 5 kg/ha + captura Sitio Palmar standalone
       - 7 pontos de referencia IDW
 
     Folga de ~70x sobre o criterio <= 5 ms do plano. Numero citavel
-    no Cap. 7 da tese (junto com o ~20 us do ensaio_abcd e o bench
+    no artigo SBIAGRO 2025 (junto com o ~20 us do ensaio_abcd e o bench
     sintetico de 73 us do BUILD_TESTS).
 
     Erro de aplicacao tambem alto no Sitio Palmar (33.17% global),
@@ -829,10 +829,10 @@ Sessao 2026-04-30 — Etapa 9 (publicacao no GitHub)
 
 (b) Dependencias: nenhuma (so artefatos de doc).
 
-(c) Operacoes git executadas (a partir do toplevel da tese):
+(c) Operacoes git executadas (a partir do toplevel do repo):
     1. git add _esp32/{LICENSE,README.md,CITATION.cff,docs/SBIAGRO2025_*.pdf}
     2. git commit -m "POC VRA_Controlador: README + LICENSE + CITATION + SBIAGRO 2025 (etapa 9)"
-       Resultou em commit ea79f05 no main da tese.
+       Resultou em commit ea79f05 no main local.
     3. git subtree split --prefix=_esp32 -b vra-controlador-export
        Criou branch local com 15 commits do POC, com _esp32/ promovido
        para a raiz. Commit final da split: 5b893de.
@@ -856,7 +856,7 @@ Sessao 2026-04-30 — Etapa 9 (publicacao no GitHub)
        controlador deste repo. Decisao registrada na mensagem do commit.
 
     2. Tag local v1.0.0-vra-controlador (sufixada) para evitar colisao
-       com futuras tags v1.0.0 da tese ou do _python/. No remoto publico
+       com futuras tags v1.0.0 ou do _python/. No remoto publico
        aparece como v1.0.0 simples.
 
     3. Force-push autorizado pelo autor — prática convencional para
@@ -894,7 +894,7 @@ Sub-iteracao etapa 9 — DOI Zenodo + badge no README
 
 (c) Operacoes git:
     1. git commit -m "POC VRA_Controlador: DOI Zenodo no CITATION.cff
-       e badge no README (etapa 9)" -> commit 586c6d7 no main da tese.
+       e badge no README (etapa 9)" -> commit 586c6d7 no main local.
     2. git subtree push --prefix=_esp32 \
        https://github.com/edcasag/VRA_Controlador.git main
        Push fast-forward (5b893de..70dbb8f) — sem --force porque o
@@ -943,7 +943,7 @@ Sessao 2026-04-30 — Etapa 10 (cross-link _python <-> _esp32 + fix DOI _python)
 
 (b) Operacoes git:
     1. git commit -m "VRA_Simulador: DOI Concept + cross-link para
-       VRA_Controlador" -> commit 42e030d no main da tese.
+       VRA_Controlador" -> commit 42e030d no main local.
     2. git subtree push --prefix=_python \
          https://github.com/edcasag/VRA_Simulador.git main
        Push fast-forward (6f630fc..18d24c0) — sem --force.
@@ -979,7 +979,7 @@ Sessao 2026-04-30 — Etapa 10 (cross-link _python <-> _esp32 + fix DOI _python)
       Etapas 1-10 do plano fechadas em 2026-04-30.
 
 ================================================================================
-Sessao 2026-04-30 — Imagens da tese nos repos publicos
+Sessao 2026-04-30 — Imagens nos repos publicos
 ================================================================================
 
 (a) Arquivos criados/modificados:
@@ -1019,8 +1019,8 @@ Sessao 2026-04-30 — Imagens da tese nos repos publicos
         - screenshot_palmar.png mantido como hero
 
 (b) Operacoes git:
-    1. git commit -m "Imagens da tese nos repos publicos: arquitetura,
-       PCB e screenshots" -> commit no main da tese.
+    1. git commit -m "Imagens nos repos publicos: arquitetura,
+       PCB e screenshots" -> commit no main local.
     2. git subtree push --prefix=_esp32 \
          https://github.com/edcasag/VRA_Controlador.git main
        Push fast-forward (70dbb8f..71eb9a2).
@@ -1038,7 +1038,7 @@ Sessao 2026-04-30 — Imagens da tese nos repos publicos
     - Nao foram trazidas para os repos: imagens genericas do diretorio
       Dissertacao_Mestrado/images/ que nao agregam aos repos publicos
       (Fertilizer.jpg, VRA - Trator.jpg, trator.jpg, Sitio Vicosa.JPG,
-      Talhao KML*.JPG). Ficam restritas ao diretorio da tese.
+      Talhao KML*.JPG). Ficam restritas ao diretorio do projeto.
 
 (d) Estado final dos repos publicos:
     - edcasag/VRA_Controlador main = 71eb9a2 (HEAD)

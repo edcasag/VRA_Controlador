@@ -18,10 +18,10 @@ Etapa 11+ (melhorias futuras) listadas abaixo, opcionais.
 
 [x] 1. Inspecionar Receita.h e Calc.h do Syncat (D:\SynCAT\SynCAT\CNC\MINI\
        SyncatV3-Esp32\src\) apenas conceitualmente. Não copiar código nem
-       nomes. Reusar somente conceitos do Cap. 6 da tese.
+       nomes. Reusar somente conceitos do artigo SBIAGRO 2025.
        Concluído 2026-04-29 — registro em versao.txt (Sessão Etapa 1).
 
-[x] 2. Escrever do zero, com terminologia canônica da tese:
+[x] 2. Escrever do zero, com terminologia canônicao artigo SBIAGRO 2025:
          - src/Geometria.h          (header-only: Ponto, Coord, projetar,
                                      polygonArea, pointInPolygon)
          - src/Kml.h / Kml.cpp      (parsing tinyxml2, Talhao, RegiaoPoligonal,
@@ -74,7 +74,7 @@ Etapa 11+ (melhorias futuras) listadas abaixo, opcionais.
          - BUILD_TESTS capturado em docs/sample_output_tests.txt
            (9 PASS, 0 FAIL). Latência ponta-a-ponta: média 73,4 µs,
            p95 92 µs — ~68× abaixo do critério ≤ 5 ms. Dado citável
-           no Cap. 7 da tese.
+           no artigo SBIAGRO 2025.
          - 6 fixes de compilação (DEG_TO_RAD, std::clamp, LEDC 2.x,
            strtok_r, refator 3 envs→1 env) + 1 fix de teste (teste 5
            IDW simétrico: y projetado em vez de y=0 cru).
@@ -128,7 +128,7 @@ Etapa 11+ (melhorias futuras) listadas abaixo, opcionais.
            - validacao numerica em massa de IDW INTERPOLADO concluida.
            - latencia LogicaHierarquica: ~20 us/chamada.
            - latencia PID: ~5 us/iteracao.
-         - Achados cientificos para a tese (Cap. 7/8):
+         - Achados cientificos para o artigo (Resultados/Discussão):
            - erro de aplicacao -15% a -41% NAO vem do algoritmo (paridade
              PASS) — vem da inercia mecanica do servo (TAU=0.3s vs
              dt=0.2s entre fixes). Em transicoes de zona o setpoint muda

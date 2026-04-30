@@ -7,7 +7,7 @@
 
 POC em ESP32 do controlador de Aplicação em Taxa Variável (VRA), complementar ao [VRA_Simulador](https://github.com/edcasag/VRA_Simulador) (Python). Lê zonas de manejo de um KML do Google Earth, executa a Lógica Hierárquica (polígonos de exclusão, polígonos de inclusão por menor área, IDW, talhão como dose-base), e aciona um atuador linear via PID com modelo de planta de 1ª ordem.
 
-Acompanha a dissertação de mestrado de Edson Casagrande na Escola Politécnica da USP (POLI/USP), orientação Prof. Carlos Eduardo Cugnasca, e o artigo apresentado no SBIAGRO 2025 ([PDF](docs/SBIAGRO2025_artigo.pdf), [slides](docs/SBIAGRO2025_apresentacao.pdf)).
+Implementa o controlador descrito no artigo apresentado no SBIAGRO 2025 ([PDF](docs/SBIAGRO2025_artigo.pdf), [slides](docs/SBIAGRO2025_apresentacao.pdf)). Trabalho de pesquisa de Edson Casagrande no programa de pós-graduação em Engenharia de Computação da Escola Politécnica da USP (POLI/USP), orientação Prof. Carlos Eduardo Cugnasca.
 
 ![Visão geral do sistema VRA_Controlador: KML no Google Earth → módulo ESP32 com GPS e WiFi → PWM aciona atuadores lineares X/Y dos discos espalhadores](images/distribuidor_duplo_atuadores.jpg)
 
@@ -35,13 +35,13 @@ A paridade numérica entre os dois (mesma origem de projeção, mesma fórmula I
 ## Recursos
 
 - Lê zonas de manejo de um KML do Google Earth (polígonos, círculos, pontos de amostra IDW), via [tinyxml2](https://github.com/leethomason/tinyxml2) vendored.
-- Lógica Hierárquica fiel ao Algoritmo 1 da tese: círculos → polígonos exclusão → polígonos inclusão (menor área vence) → IDW → talhão (dose-base) → 0.
+- Lógica Hierárquica fiel ao Algoritmo 1 do artigo SBIAGRO 2025: círculos → polígonos exclusão → polígonos inclusão (menor área vence) → IDW → talhão (dose-base) → 0.
 - IDW Euclidiano `p=2`, raio 100 m, `d_min` 0,5 m.
 - Atuador linear bidirecional via PWM (LEDC) com feedback potenciométrico (ADC).
 - PID header-only (~30 linhas) com anti-windup por clamping.
 - 4 modos plug-and-play via macro de build (`BUILD_SIM`, `BUILD_ANALISE`, `BUILD_TESTS`, `BUILD_POC`).
 - Interface bilíngue (PT/EN) via `-DLANG_PT` / `-DLANG_EN` no `platformio.ini`.
-- Latências medidas no DevKit V1: Lógica Hierárquica ~20–73 µs/chamada, PID ~5 µs/iteração — ~70× abaixo do critério ≤ 5 ms da tese.
+- Latências medidas no DevKit V1: Lógica Hierárquica ~20–73 µs/chamada, PID ~5 µs/iteração — ~70× abaixo do critério ≤ 5 ms estabelecido no projeto.
 
 ## Pré-requisitos
 
@@ -86,7 +86,7 @@ Detalhes de procedimento, captura de saída e adição de novos KMLs em [docs/RE
 
 | Arquivo | Conteúdo | Uso |
 |---|---|---|
-| `data/ensaio_abcd.kml` | 4 zonas A/B/C/D, retangulares, 1 ha cada, doses 90/75/60/100 kg/ha | Ensaio integrado da Tab. 6 da dissertação. CSV ground truth incluído (`trajetoria_ensaio_abcd.csv`) para validação cruzada Python ↔ ESP32 |
+| `data/ensaio_abcd.kml` | 4 zonas A/B/C/D, retangulares, 1 ha cada, doses 90/75/60/100 kg/ha | Ensaio integrado do artigo SBIAGRO 2025. CSV ground truth incluído (`trajetoria_ensaio_abcd.csv`) para validação cruzada Python ↔ ESP32 |
 | `data/talhao_completo.kml` | 7 zonas retangulares na escala 50–100 kg/ha | Demonstração da legenda de cores |
 | `data/Sitio_Palmar.kml` | Talhão real do autor: 14 vértices irregulares, 6 zonas de inclusão, 1 polígono de exclusão (Sede), 2 círculos (cupins/pedras), 7 amostras IDW | Validação em campo real |
 
@@ -239,7 +239,7 @@ GitHub: [@edcasag](https://github.com/edcasag)
 
 VRA_Controlador is an ESP32 proof-of-concept of a Variable-Rate Application (VRA) controller, complementary to [VRA_Simulador](https://github.com/edcasag/VRA_Simulador) (Python). It reads management zones from a Google Earth KML, runs the Hierarchical Logic (exclusion polygons, inclusion polygons by smallest area, IDW, field as base rate), and drives a linear actuator through a PID controller with a first-order plant model.
 
-It accompanies the master's dissertation by Edson Casagrande at the Polytechnic School of the University of São Paulo (POLI/USP), under Prof. Carlos Eduardo Cugnasca.
+It implements the controller described in the SBIAGRO 2025 paper. Research work by Edson Casagrande at the Polytechnic School of the University of São Paulo (POLI/USP), under Prof. Carlos Eduardo Cugnasca.
 
 ### Complementarity with VRA_Simulador (Python)
 

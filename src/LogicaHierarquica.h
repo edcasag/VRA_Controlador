@@ -1,4 +1,4 @@
-// LogicaHierarquica — Algoritmo 1 do Cap. 6 da tese.
+// LogicaHierarquica — Algoritmo 1 do artigo SBIAGRO 2025.
 // Hierarquia de decisão (cap. 6 §6.3):
 //   1. Região circular (qualquer dose, exclusão tem mesma forma)
 //   2. Polígono de exclusão (dose==0)

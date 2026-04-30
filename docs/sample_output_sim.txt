@@ -40,7 +40,7 @@ Paridade Python <-> ESP32 (2010 pontos):
 # ----------------------------------------------------------------------
 # Modo "simulacao standalone". Nao ha CSV ground truth para Sitio Palmar
 # na v1.0.0 (gerar com pio scripts/export_trajectory_csv.py se desejar).
-# Importante para o Cap. 7 da tese: latencia da LogicaHierarquica em
+# Importante para o artigo SBIAGRO 2025: latencia da LogicaHierarquica em
 # cenario REAL (6+1 poligonos + 2 circulos + 7 IDW samples) = ~71 us /
 # chamada — folga de ~70x sobre o criterio <= 5 ms do plano.
 #

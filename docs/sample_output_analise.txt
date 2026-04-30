@@ -44,7 +44,7 @@ ponto,,0,,-146.38,-259.84
 === CSV END ===
 
 === 9 PONTOS DEMO ===
-Cenarios cobertos (Algoritmo 1, Cap.6 §6.3 da tese):
+Cenarios cobertos (Algoritmo 1, artigo SBIAGRO 2025):
   1. Regiao circular (qualquer dose)
   2. Poligono de exclusao (dose==0)
   3. Poligono de inclusao (dose>0)

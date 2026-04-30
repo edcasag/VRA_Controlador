@@ -30,7 +30,7 @@
 namespace {
 
 // ---------------------------------------------------------------------------
-// Pinout (Cap. 6 §6.7 da tese / plano).
+// Pinout (artigo SBIAGRO 2025 / plano).
 // ---------------------------------------------------------------------------
 constexpr int PIN_PWM_AVANCAR  = 25;
 constexpr int PIN_PWM_RECUAR   = 26;

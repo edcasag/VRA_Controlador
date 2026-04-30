@@ -1,4 +1,4 @@
-// Kml — parser do mapa de aplicação conforme Tabela 4 do Cap. 6 da tese.
+// Kml — parser do mapa de aplicação conforme Tabela 4 do artigo SBIAGRO 2025.
 // Categorias: Talhao (perímetro externo + dose-base), RegiaoPoligonal
 // (inclusão dose>0 ou exclusão dose==0), RegiaoCircular (label+raio),
 // PontoReferencia (lat/lon+dose, usado pelo IDW).

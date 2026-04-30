@@ -1,6 +1,6 @@
 // Geometria 2D para o POC VRA_Controlador.
 // Termos: Coord (lat/lon graus), Ponto (x/y metros — projeção equiretangular
-// local, origem fixada pelo KML carregado, conforme Cap. 6 da tese).
+// local, origem fixada pelo KML carregado, conforme artigo SBIAGRO 2025).
 #pragma once
 
 #include <cmath>

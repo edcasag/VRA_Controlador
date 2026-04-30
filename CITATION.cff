@@ -33,8 +33,8 @@ abstract: >-
   KML do Google Earth, executa a Lógica Hierárquica (polígonos de
   exclusão, polígonos de inclusão por menor área, IDW, talhão como
   dose-base) e aciona um atuador linear via PID com modelo de planta
-  de 1ª ordem. Acompanha a dissertação de mestrado de Edson Casagrande
-  na POLI/USP e o artigo apresentado no SBIAGRO 2025.
+  de 1ª ordem. Implementa o controlador descrito no artigo apresentado
+  no SBIAGRO 2025 (Casagrande & Cugnasca, 2025).
 references:
   - type: conference-paper
     title: "Controlador de Taxa Variável para Distribuidores Agrícolas baseado em Google Earth e Interpolação IDW"

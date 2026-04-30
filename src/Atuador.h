@@ -79,7 +79,7 @@ struct AlvoAtuador {
     bool   saturou;           // true se vazão excedeu o fator de escoamento
 };
 
-// Cadeia "taxa -> vazão -> abertura -> posição" do Cap. 6 da tese.
+// Cadeia "taxa -> vazão -> abertura -> posição" do artigo SBIAGRO 2025.
 // vazão_kg_min = taxa[kg/ha] · velocidade[km/h] · largura[m] / 600
 inline AlvoAtuador posicao_alvo_para_taxa(double rate_kg_ha, double vel_kmh,
                                           double largura_m       = LARGURA_M,
