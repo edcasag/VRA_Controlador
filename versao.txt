@@ -864,12 +864,6 @@ Sessao 2026-04-30 — Etapa 9 (publicacao no GitHub)
        (LICENSE), sem colaboradores nem stars/forks externos.
 
 (e) Pendencias para o autor:
-    - opcional: ativar webhook GitHub<->Zenodo antes de criar release v1.0.0
-      pela web do GitHub (mesmo padrao do VRA_Simulador
-      DOI 10.5281/zenodo.19893499). Apos ativar, fazer "Release" da tag
-      v1.0.0 — Zenodo gera DOI automaticamente. Se feito, atualizar:
-        * CITATION.cff (adicionar campo `doi:`)
-        * README.md (badge DOI no topo)
     - autorizar etapa 10: link cruzado no _python/README.md apontando
       para VRA_Controlador (e nota sobre complementaridade — texto
       simetrico ao que ja temos no README do VRA_Controlador).
@@ -877,3 +871,63 @@ Sessao 2026-04-30 — Etapa 9 (publicacao no GitHub)
       consolidar (git branch -D vra-controlador-export). Recomendo
       manter por ora — proxima sessao de sync (mais commits no _esp32/)
       pode reusar com 'git subtree split' incremental.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 9 — DOI Zenodo + badge no README
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/CITATION.cff   (campo 'doi:' + entrada em 'identifiers:')
+    - _esp32/README.md      (badge DOI dinamico no topo + bloco
+                             "Como citar" reescrito com Concept DOI,
+                             BibTeX e nota sobre Version DOI)
+
+(b) DOIs atribuidos pelo Zenodo:
+    - Concept DOI (estavel, sempre aponta pra ultima versao):
+        10.5281/zenodo.19922431
+        Usado em CITATION.cff, badge do README e bloco principal de
+        cita\xe7\xe3o. Convencao alinhada com a recomenda\xe7\xe3o do Zenodo.
+    - Version DOI da v1.0.0 (especifico, imutavel):
+        10.5281/zenodo.19922432
+        Mencionado no README como "DOI da versao especifica" para
+        citar a v1.0.0 deterministicamente em artigos futuros.
+
+(c) Operacoes git:
+    1. git commit -m "POC VRA_Controlador: DOI Zenodo no CITATION.cff
+       e badge no README (etapa 9)" -> commit 586c6d7 no main da tese.
+    2. git subtree push --prefix=_esp32 \
+       https://github.com/edcasag/VRA_Controlador.git main
+       Push fast-forward (5b893de..70dbb8f) — sem --force porque o
+       remote agora tem nosso historico.
+
+(d) Diagnostico do webhook GitHub<->Zenodo (registrado para futura
+    referencia, ja que o autor encontrou bug de cache no toggle):
+    - Repo novo (criado depois do primeiro OAuth do Zenodo) NAO aparece
+      no toggle list mesmo apos 'Sync now'. Workaround: revoke do
+      Zenodo em github.com/settings/applications + logout + relogin
+      no Zenodo via GitHub. Apos re-OAuth o repo aparece.
+    - Webhook do Zenodo dispara 3 eventos por release no GitHub
+      (created, published, released); Zenodo so aceita o 'published'
+      (status 202), os outros dois retornam 409. Isso eh comportamento
+      normal — nao indicar problema no log.
+    - Apos publicar a release (gh release create), o DOI sai em
+      ~1-2 minutos. Aparece em https://zenodo.org/me/uploads.
+
+(e) Repo publico final:
+    - https://github.com/edcasag/VRA_Controlador
+    - main = 70dbb8f (HEAD)
+    - tag v1.0.0 = 5b893de (commit pre-DOI; documentacao da release
+      v1.0.0 captura o estado original publicado, sem o badge).
+      Nao requer republicacao — quem cita pelo DOI 19922432 (Version)
+      ou 19922431 (Concept) chega no arquivo Zenodo correto.
+    - Concept DOI: 10.5281/zenodo.19922431
+    - Version DOI: 10.5281/zenodo.19922432
+
+(f) Pendencias para o autor:
+    - opcional: corrigir _python/README.md e _python/CITATION.cff que
+      usam 10.5281/zenodo.19893499 (Version DOI da v1.0.0 do
+      VRA_Simulador) onde deveria estar o Concept DOI 10.5281/zenodo.19893498.
+      Mesma correcao feita aqui no _esp32/. Aguardando autorizacao do
+      autor.
+    - autorizar etapa 10 (link cruzado no _python/ apontando pro
+      VRA_Controlador).

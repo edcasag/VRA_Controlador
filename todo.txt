@@ -133,23 +133,35 @@ Proxima acao: etapa 10 (link cruzado no _python/README.md) — opcional.
              nao modela isso porque assume aplicacao instantanea da
              dose-alvo. POC ESP32 cumpre o papel de complementar.
 
-[x] 9. Publicacao do repositorio:
+[x] 9. Publicacao do repositorio + DOI Zenodo:
        Concluido 2026-04-30 — repo publico criado pelo autor
        (https://github.com/edcasag/VRA_Controlador, vazio, MIT, publico).
        Arquivos de publicacao adicionados em _esp32/:
          - LICENSE (MIT, identico ao _python/LICENSE)
-         - README.md (PT-BR + English, ~13 KB)
-         - CITATION.cff (metadados + bibref SBIAGRO 2025)
+         - README.md (PT-BR + English, ~13 KB, com badge DOI)
+         - CITATION.cff (metadados + bibref SBIAGRO 2025 + DOI)
          - docs/SBIAGRO2025_artigo.pdf (550 KB)
          - docs/SBIAGRO2025_apresentacao.pdf (2.2 MB)
-       Dual-repo configurado via subtree split + force-push:
+       Dual-repo configurado via subtree split + push:
          - git subtree split --prefix=_esp32 -b vra-controlador-export
          - git push <repo> vra-controlador-export:main --force
+           (primeiro push, force porque substituiu commit auto-gerado
+           do LICENSE pelo GitHub)
          - tag v1.0.0 criada no remoto.
-       Verificacao: HEAD = main = v1.0.0 = 5b893de no remoto.
-       Opcional: ativar webhook GitHub<->Zenodo + criar Release v1.0.0
-       pela web do GitHub para gerar DOI (mesmo padrao do VRA_Simulador
-       DOI 10.5281/zenodo.19893499). Adiar para sessao dedicada.
+         - gh release create v1.0.0 (com release notes em PT-BR).
+         - webhook Zenodo->GitHub disparou; DOI mintado em ~1 min.
+         - novo subtree push (fast-forward, sem --force) com
+           CITATION.cff e badge atualizados.
+       DOIs atribuidos:
+         - Concept DOI: 10.5281/zenodo.19922431 (estavel, sempre
+           aponta pra ultima versao — usado em badge e cita\xe7\xe3o
+           principal).
+         - Version DOI v1.0.0: 10.5281/zenodo.19922432 (especifico
+           da versao, imutavel — para cita\xe7\xe3o deterministica).
+       Estado do remoto: main = 70dbb8f (HEAD), tag v1.0.0 = 5b893de.
+       Pendencia menor: _python/ usa Version DOI 10.5281/zenodo.19893499
+       onde deveria usar Concept DOI 10.5281/zenodo.19893498. Mesma
+       correcao do _esp32/ aplicavel; aguarda autorizacao do autor.
 
 [ ] 10. Link cruzado no VRA_Simulador (Python):
          - atualizar _python/README.md com link para VRA_Controlador
