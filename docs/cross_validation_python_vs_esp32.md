@@ -84,3 +84,27 @@ A paridade algorítmica entre `VRA_Simulador` (Python) e `VRA_Controlador`
 Origem de projeção, parâmetros IDW e ordem de hierarquia são idênticos
 nas duas implementações, garantindo equivalência funcional para
 auditoria por terceiros.
+
+## Validação numérica em massa — modo `BUILD_SIM` (etapa 8)
+
+A etapa 8 do POC adiciona o modo `BUILD_SIM`, que executa a Lógica
+Hierárquica do ESP32 sobre uma **trajetória completa** gerada por
+[`_python/scripts/export_trajectory_csv.py`](../../_python/scripts/export_trajectory_csv.py)
+e versionada como [`_esp32/data/trajetoria_ensaio_abcd.csv`](../data/trajetoria_ensaio_abcd.csv)
+(2856 fixes, ~190 KB, ensaio_abcd 200×200 m, largura 20 m, step 1 m).
+
+Para cada fixe, o ESP32 calcula `dose_esp = LogicaHierarquica::dose(x, y)`
+e compara contra a coluna `dose_alvo_kg_ha` do CSV (calculada pelo
+Python `dose_at()`). A seção "Paridade Python ↔ ESP32" do relatório
+final imprime:
+
+- `max |delta_dose|` (kg/ha)
+- número de divergências > 1e-3 kg/ha
+- veredicto PASS/FAIL
+
+Esse modo cobre o cenário que os 5 pontos não cobriam: **IDW interpolado
+entre múltiplos samples** (que produz dose fracionária real). O CSV
+versionado serve como teste unitário automático: qualquer regressão na
+Lógica Hierárquica, no IDW, ou no port C++ do `Terreno` aparece
+imediatamente como FAIL na captura do BUILD_SIM em
+[`sample_output_sim.txt`](sample_output_sim.txt).

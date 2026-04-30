@@ -79,7 +79,7 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
        INTERPOLADO (múltiplos samples) fica coberta pelo modo SIM
        da próxima etapa, que percorre o talhão com trajetória densa.
 
-[ ] 8. BUILD_SIM — simulação completa standalone (proposta nova):
+[/] 8. BUILD_SIM — simulação completa standalone:
          - criar entry point main_sim.cpp (env: BUILD_SIM)
          - GPS sintético (trajetória boustrofédon dentro do talhão)
          - planta de 1ª ordem para o atuador (responde ao PID)
@@ -89,6 +89,22 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
            qualquer ESP32 DevKit V1 rode standalone, sem hardware
          - capturar saída em docs/sample_output_sim.txt
          - planejado para encerrar a v1.0.0 publicável.
+       Implementação concluída 2026-04-30 (falta capturar saída no HW):
+         - Python: scripts/export_trajectory_csv.py (~80 linhas);
+           CSV ground truth gerado: data/trajetoria_ensaio_abcd.csv
+           (2856 fixes, 190 KB, doses 0/60/75/90/100, vel 2,97-7,00 m/s).
+         - ESP32 (~700 linhas C++): Terreno.h (declive + bossas),
+           Planta.h (1a ordem TAU=0.3s), Trajetoria.h/.cpp (boustrofedon
+           simplificado), CsvReader.h (streaming), MenuSerial.h/.cpp
+           (lista *.kml e auto-detecta CSV), Relatorio.h/.cpp (agregador
+           por zona + paridade Python<->ESP32), main_sim.cpp (orquestra),
+           i18n.h (PT/EN via build flag).
+         - platformio.ini: BUILD_SIM + LANG_PT default; LANG_EN comentado.
+         - docs/README.md: nova seção BUILD_SIM com instruções de upload.
+         - docs/cross_validation_python_vs_esp32.md: seção sobre validação
+           numérica em massa via CSV ground truth.
+       Pendência: autor compilar (pio run), upload (-t upload + -t
+       uploadfs), capturar saída em docs/sample_output_sim.txt.
 
 [ ] 9. Publicação do repositório:
          - criar repo público novo edcasag/VRA_Controlador

@@ -575,3 +575,89 @@ Sessao 2026-04-30 — Etapa 7 (validacao cruzada Python <-> ESP32)
 (e) Pendencia para o autor:
     - autorizar plano detalhado da etapa 8 (BUILD_SIM) — proposta
       apresentada no chat antes de codar.
+
+================================================================================
+Sessao 2026-04-30 — Etapa 8 (BUILD_SIM, implementacao)
+================================================================================
+
+(a) Arquivos criados:
+
+    Python:
+    - _python/scripts/export_trajectory_csv.py    (~100 linhas)
+
+    Dados:
+    - _esp32/data/trajetoria_ensaio_abcd.csv      (2856 fixes, 189 KB,
+                                                   doses 0/60/75/90/100,
+                                                   vel 2,97-7,00 m/s,
+                                                   t_sim ~9,4 min)
+
+    ESP32 (todos em _esp32/src/, ~700 linhas C++17):
+    - Terreno.h          ~75 linhas, declive linear + bossas Gaussianas
+                          (espelha terrain.py 1:1)
+    - i18n.h             ~80 linhas, ~30 macros PT/EN por build flag
+    - Planta.h           ~30 linhas, 1a ordem TAU=0.3s
+    - CsvReader.h        ~100 linhas, streaming linha-a-linha LittleFS
+    - Trajetoria.h       ~50 linhas
+    - Trajetoria.cpp     ~110 linhas, boustrofedon simplificado
+                          (faixas E-O com clipping pointInPolygon)
+    - MenuSerial.h       ~40 linhas
+    - MenuSerial.cpp     ~95 linhas, lista *.kml + auto-detecta CSV
+    - Relatorio.h        ~55 linhas
+    - Relatorio.cpp      ~95 linhas, agregador por zona + paridade
+    - main_sim.cpp       ~210 linhas, orquestra menu + loop completo
+
+    Atualizados:
+    - _esp32/platformio.ini      (BUILD_SIM + LANG_PT default; LANG_EN
+                                  comentado; comentarios atualizados)
+    - _esp32/docs/README.md      (nova secao BUILD_SIM com instrucoes
+                                  + como adicionar KMLs novos + como
+                                  trocar idioma)
+    - _esp32/docs/cross_validation_python_vs_esp32.md
+                                  (seção sobre validacao numerica em
+                                   massa via CSV ground truth)
+    - _esp32/todo.txt             (etapa 8 marcada [/], pendente captura)
+    - _esp32/versao.txt           (esta sessao)
+
+(b) Dependencias introduzidas: nenhuma (reusa tinyxml2 ja vendored).
+
+(c) Decisoes de design tomadas (alem das ja registradas no plano):
+
+    1. Conversao vel m/s -> km/h dentro do main_sim.cpp:
+       - Trajetoria emite fixe.vel em m/s (compativel com Python).
+       - posicao_alvo_para_taxa(rate, vel_kmh) espera km/h.
+       - Conversao explicita: vel_kmh = fixe.vel * 3.6.
+
+    2. PID a 50 Hz (dt=0.02s) com gains do main_poc.cpp (8.0/1.5/0.0).
+       Numero de passos PID entre fixes: dt_fixe / 0.02, clipped em [1, 50].
+       Em fixes muito longos (saltos de y_atual entre faixas), o cap em 50
+       evita aquecer demais sem afetar o estado estacionario.
+
+    3. Trajetoria simplificada cobre QUALQUER KML do LittleFS:
+       - Boustrofedon E-O com step_m=1m, largura 20m.
+       - Clipping por pointInPolygon nos extremos de cada faixa
+         (suficiente para retangulos; perde area em quinas irregulares).
+       - Headland_pass e offset_polygon ficam para v1.1.
+
+    4. CSV streaming evita carregar 190 KB em RAM:
+       - CsvReader le linha-a-linha via File.readStringUntil('\n').
+       - Sequencia esperada Python = sequencia gerada pela Trajetoria
+         (ambos: faixas y crescente, direcao alterna, gnss_noise=0).
+       - Se sequencias divergirem (ex.: KML diferente do CSV), a paridade
+         vai dar FAIL imediatamente — comportamento desejado.
+
+    5. Relatorio agrega por chave de dose (round 1 casa) em vez de por
+       label da zona:
+       - Mais robusto: zonas com mesma dose mas labels diferentes
+         (ex.: 'Good=100' e 'Nova=100') somam juntas, refletindo o que
+         o atuador efetivamente fez.
+       - Zona 0 (curvas / fora do talhao) eh ignorada na ponderacao
+         global de erro %.
+
+(d) Pendencia para o autor:
+    - rodar 'pio run' (default ja eh BUILD_SIM + LANG_PT). Esperado:
+      SUCCESS, RAM <15%, Flash <35%.
+    - rodar 'pio run -t upload' + 'pio run -t uploadfs' (envia KMLs +
+      CSV ground truth) + 'pio device monitor'.
+    - escolher opcao 1 (ensaio_abcd.kml) no menu Serial.
+    - capturar saida completa em _esp32/docs/sample_output_sim.txt.
+    - confirmar veredicto PASS na seção "Paridade Python<->ESP32".
