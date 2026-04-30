@@ -423,3 +423,36 @@ Sub-iteracao etapa 6 — fix env: poc (LEDC API antiga + strtok_r)
 (c) Pendencia para o autor:
     - rodar 'pio run -e tests' (ja deve estar OK apos o fix de std::clamp)
       e 'pio run -e poc' (com este fix). Reportar resultado.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 6 — refator: 1 env unico + macro -DBUILD_X
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/platformio.ini      (3 envs -> 1 env unico [env:vra]; modo
+                                  selecionado via build_flags com 3 linhas
+                                  alternativas comentadas)
+    - _esp32/src/main_analise.cpp  (envolto em #ifdef BUILD_ANALISE / #endif
+                                    + #pragma message para feedback no build)
+    - _esp32/src/main_tests.cpp    (idem com BUILD_TESTS)
+    - _esp32/src/main_poc.cpp      (idem com BUILD_POC)
+
+(b) Razao da mudanca:
+    Pedido do autor por simplicidade — 'pio run -e <env>' nao era
+    intuitivo para quem nao usa PlatformIO regularmente. Com a
+    refatoracao, o autor:
+      1. Edita platformio.ini, descomenta UMA das 3 linhas de build_flags.
+      2. Roda sempre o mesmo comando: 'pio run' (ou icone "✓" do
+         PlatformIO no canto inferior esquerdo do VSCode).
+      3. O #pragma message imprime no console qual modo esta sendo
+         compilado.
+
+    Nao ha trade-off de funcionalidade: cada main_*.cpp continua sendo
+    arquivo independente; o #ifdef apenas decide qual produz setup()/loop()
+    no link final.
+
+(c) Pendencia para o autor:
+    - rodar 'pio run' com BUILD_ANALISE ativo (ja eh o default no novo
+      platformio.ini). Confirmar que compila e o pragma aparece no console.
+    - depois trocar para BUILD_TESTS, rodar 'pio run', confirmar.
+    - depois BUILD_POC, idem.

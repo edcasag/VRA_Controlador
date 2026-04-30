@@ -1,6 +1,10 @@
-// env:tests — 9 testes cronometrados, paridade com Python (1e-6).
+// Modo BUILD_TESTS — 9 testes cronometrados, paridade com Python (1e-6).
 // O teste 9 (bench de latência) reforça o Cap. 7 da tese com dado
 // reproduzível por terceiros, sem depender do Syncat proprietário.
+// Selecionado via build_flags em platformio.ini: -DBUILD_TESTS.
+#ifdef BUILD_TESTS
+#pragma message "Compilando modo: BUILD_TESTS"
+
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
@@ -359,3 +363,5 @@ void setup() {
 void loop() {
     delay(60000);
 }
+
+#endif  // BUILD_TESTS

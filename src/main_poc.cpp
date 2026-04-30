@@ -1,6 +1,7 @@
-// env:poc — sistema completo. GPS UBlox M8N em UART2 (NMEA), atuador linear DC
-// com PWM avançar/recuar + feedback ADC potenciométrico, PID em posição,
-// botões físicos START/STOP, 4 modos: EXEC, CAL1, CAL2, CAL3.
+// Modo BUILD_POC — sistema completo. GPS UBlox M8N em UART2 (NMEA), atuador
+// linear DC com PWM avançar/recuar + feedback ADC potenciométrico, PID em
+// posição, botões físicos START/STOP, 4 modos: EXEC, CAL1, CAL2, CAL3.
+// Selecionado via build_flags em platformio.ini: -DBUILD_POC.
 //
 // Arquitetura FreeRTOS:
 //   task_logica  (core 0, 2 Hz):  GPS -> projeção -> dose -> vazão -> posicao_alvo
@@ -10,6 +11,9 @@
 // Calibrações cal1->cal2->cal3 rodam blocking dentro do loop(); durante elas a
 // task_controle é desativada (modo_ctrl = CTRL_IDLE) e a task_logica não atualiza
 // o setpoint.
+#ifdef BUILD_POC
+#pragma message "Compilando modo: BUILD_POC"
+
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
@@ -390,3 +394,5 @@ void loop() {
 
     delay(20);
 }
+
+#endif  // BUILD_POC

@@ -1,6 +1,10 @@
-// env:analise — sem hardware extra. Carrega KML do LittleFS, imprime sumário,
-// CSV de auditoria e doses para 9 pontos demo cobrindo os 7 cenários do
-// Algoritmo 1 (Cap. 6 §6.3 da tese).
+// Modo BUILD_ANALISE — sem hardware extra. Carrega KML do LittleFS, imprime
+// sumário, CSV de auditoria e doses para 9 pontos demo cobrindo os 7 cenários
+// do Algoritmo 1 (Cap. 6 §6.3 da tese). Selecionado via build_flags em
+// platformio.ini: -DBUILD_ANALISE.
+#ifdef BUILD_ANALISE
+#pragma message "Compilando modo: BUILD_ANALISE"
+
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
@@ -120,3 +124,5 @@ void setup() {
 void loop() {
     delay(60000);
 }
+
+#endif  // BUILD_ANALISE
