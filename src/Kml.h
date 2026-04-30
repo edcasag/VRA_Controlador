@@ -55,6 +55,12 @@ public:
     const  std::vector<PontoReferencia>& pontosReferencia()    const { return pontos_; }
     Coord                                origem()              const { return origem_; }
 
+    // Bbox union de todas as features (Talhao + poligonos + circulos + pontos).
+    // Espelha KmlData.bbox() do Python: se nao ha Talhao explicito, ainda
+    // retorna o envelope das demais features (caso ensaio_abcd.kml, que so
+    // tem 4 zonas A/B/C/D sem Field=). Retorna false se KML estiver vazio.
+    bool bbox(double& xmin, double& ymin, double& xmax, double& ymax) const;
+
     void imprimirSumario(Print& out) const;
     void imprimirCsv(Print& out)     const;
 

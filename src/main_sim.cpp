@@ -19,6 +19,7 @@
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include <esp_log.h>
 
 #include <cmath>
 #include <cstdio>
@@ -43,23 +44,15 @@ constexpr double STEP_M    = 1.0;
 constexpr double DT_PID    = 0.02;               // 50 Hz
 constexpr int    PONTINHO_INTERVALO = 50;        // 1 ponto a cada 50 fixes
 
-void calcularBbox(const vra::Talhao& t, double& xmin, double& ymin,
-                  double& xmax, double& ymax) {
-    xmin = ymin = +1e18;
-    xmax = ymax = -1e18;
-    for (const auto& v : t.vertices) {
-        if (v.x < xmin) xmin = v.x;
-        if (v.x > xmax) xmax = v.x;
-        if (v.y < ymin) ymin = v.y;
-        if (v.y > ymax) ymax = v.y;
-    }
-}
-
 }  // namespace
 
 void setup() {
     Serial.begin(115200);
     delay(800);
+    // Suprime "[E][vfs_api.cpp:105] open(): ... does not exist" que o
+    // arduino-esp32 emite quando MenuSerial verifica CSVs opcionais.
+    esp_log_level_set("vfs_api", ESP_LOG_NONE);
+
     Serial.println();
     Serial.println(F(MSG_BANNER));
 
@@ -94,13 +87,13 @@ void setup() {
         Serial.println(buf);
     }
 
-    // ---- Bbox do talhao -> Terreno default (declive 4% E->O + 1 bossa) ----
-    if (!kml.talhaoCarregado()) {
-        Serial.println(F("[ERRO] KML sem Talhao (Field=)"));
+    // ---- Bbox do KML -> Terreno default (declive 4% E->O + 1 bossa) ----
+    // Funciona com Talhao explicito (Field=) ou apenas zonas (ensaio_abcd).
+    double xmin, ymin, xmax, ymax;
+    if (!kml.bbox(xmin, ymin, xmax, ymax)) {
+        Serial.println(F("[ERRO] KML vazio: nenhuma feature reconhecida"));
         return;
     }
-    double xmin, ymin, xmax, ymax;
-    calcularBbox(kml.talhao(), xmin, ymin, xmax, ymax);
     const vra::Terreno terreno = vra::terrenoDefault(xmin, ymin, xmax, ymax);
 
     // ---- Trajetoria boustrofedon (port C++ simplificado) ----
@@ -111,10 +104,8 @@ void setup() {
     bool tem_csv_python = false;
     if (opcao.tem_csv && csv.abrir(opcao.csv_caminho.c_str())) {
         tem_csv_python = csv.tem_dose_python();
-        char buf[160];
-        // Conta as linhas do CSV: usaremos contagem dinamica conforme lemos.
-        std::snprintf(buf, sizeof(buf), MSG_LOADED_CSV, opcao.csv_caminho.c_str(), 0);
-        Serial.println(buf);
+        Serial.print(F("CSV: "));
+        Serial.println(opcao.csv_caminho.c_str());
     } else {
         Serial.println(F(MSG_NO_CSV));
     }
@@ -145,9 +136,11 @@ void setup() {
         ++n_lat_dose;
 
         // 2) Comparacao com dose Python (se CSV presente).
+        // Pula linhas spreading=0 (curvas em U que o port C++ simplificado
+        // nao gera) para sincronizar com a sequencia que o ESP32 emite.
         if (tem_csv_python) {
             vra::LinhaCsv linha;
-            if (csv.proximaLinha(linha)) {
+            if (csv.proximaLinhaComSpreading(linha)) {
                 relatorio.compararPython(dose_esp, linha.dose_python);
             }
         }

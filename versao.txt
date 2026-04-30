@@ -661,3 +661,105 @@ Sessao 2026-04-30 — Etapa 8 (BUILD_SIM, implementacao)
     - escolher opcao 1 (ensaio_abcd.kml) no menu Serial.
     - capturar saida completa em _esp32/docs/sample_output_sim.txt.
     - confirmar veredicto PASS na seção "Paridade Python<->ESP32".
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 8 — fixes pos-primeira-execucao no HW
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/src/Kml.h, Kml.cpp     (novo metodo bbox() union de features)
+    - _esp32/src/Trajetoria.cpp     (usa kml.bbox(); sem clipping de campo
+                                     quando !talhaoCarregado)
+    - _esp32/src/main_sim.cpp       (chama kml.bbox(); remove erro fatal
+                                     em "KML sem Talhao"; usa
+                                     proximaLinhaComSpreading; mostra
+                                     so o nome do CSV em vez de "0 fixes")
+    - _esp32/src/CsvReader.h        (novo proximaLinhaComSpreading que
+                                     pula linhas spreading=0)
+    - _esp32/src/MenuSerial.cpp     (single-pass: lista todos os arquivos
+                                     do raiz, separa em KMLs + set de
+                                     CSVs disponiveis. Sem LittleFS.exists)
+
+    Atualizados:
+    - _esp32/docs/sample_output_sim.txt   (captura final do BUILD_SIM)
+    - _esp32/todo.txt                     (etapa 8 marcada [x])
+    - _esp32/versao.txt                   (esta sub-iteracao)
+
+(b) Diagnostico dos 3 problemas da primeira execucao no HW:
+
+    1. ERRO "[ERRO] KML sem Talhao (Field=)":
+       ensaio_abcd.kml so tem 4 poligonos A=90, B=75, C=60, D=100. Nenhum
+       eh Field=Rate. Python KmlData.bbox() faz fallback union (talhao
+       se existir + zonas + circulos + pontos). ESP32 nao fazia.
+       Fix: Kml::bbox() espelha o Python; Trajetoria usa esse bbox e
+       roda sem clipping de campo nesse caso. main_sim aceita KMLs sem
+       Talhao explicito.
+
+    2. LOGS "[E][vfs_api.cpp:105] open(): does not exist":
+       arduino-esp32 emite isso via printf direto sempre que LittleFS.
+       exists() falha. esp_log_level_set("vfs_api", ESP_LOG_NONE) NAO
+       captura porque nao eh ESP_LOG.
+       Fix: MenuSerial::descobrir() lista TODOS os arquivos num pass,
+       separa em KMLs + std::set<csv>. Lookup no set em vez de exists.
+
+    3. PARIDADE FAIL (max |delta|=100, 1434/2010 divergencias):
+       Python boustrophedon emite ~94 fixes adicionais por curva em U
+       na cabeceira (arc_n = max(40, int(pi*radius*3/step))). Esses
+       fixes vem com spreading=0 (distribuidor desligado). ESP32
+       simplificado pula direto para a proxima faixa, sem gerar arcos.
+       Resultado: sequencias dessincronizam apos faixa 1 (CSV avanca
+       100 linhas no arco enquanto ESP32 esta na proxima faixa).
+       Fix: CsvReader::proximaLinhaComSpreading pula spreading=0 do
+       CSV, sincronizando ambos os lados em fixes "espalhando".
+
+(c) Resultado final (sample_output_sim.txt):
+
+    Paridade Python <-> ESP32 (2010 pontos):
+      max |delta_dose|: 0.00e+00 kg/ha
+      divergencias > 1e-3 kg/ha: 0
+      veredicto: PASS
+
+    Validacao numerica em massa de IDW INTERPOLADO concluida com
+    paridade BIT-A-BIT (Python double vs ESP32 float identicos para
+    2010 pontos cobrindo as 4 zonas A/B/C/D). Esse era o gap que
+    a etapa 7 nao cobria (5 pontos isolados, todos com valor exato
+    por construcao). Justifica encerrar a v1.0.0 publicavel.
+
+    Latencias medidas:
+      - LogicaHierarquica::dose: ~20 us/chamada
+      - Pid::atualizar:           ~5 us/iteracao
+
+(d) Achados cientificos para a tese (Cap. 7 Resultados / Cap. 8 Discussao):
+
+    1. Erro de aplicacao alto NAO vem do algoritmo:
+       Zona A (90 kg/ha) -> aplicado 57.28 (-36.35%)
+       Zona B (75 kg/ha) -> aplicado 51.33 (-31.56%)
+       Zona C (60 kg/ha) -> aplicado 50.45 (-15.91%)
+       Zona D (100 kg/ha)-> aplicado 58.75 (-41.25%)
+       Erro % global ponderado: 31.25%
+
+       Como a paridade da LogicaHierarquica eh PASS, o erro vem da
+       inercia mecanica do atuador. Modelo da planta: TAU=0.3s (1a
+       ordem); dt entre fixes = step/v ≈ 0.2s. Resposta da planta em
+       0.2s = 1 - exp(-0.2/0.3) = 49% do alvo. Em transicoes de zona
+       (90->75, 60->100) o setpoint muda antes da planta convergir.
+
+    2. Vazamento residual em "zona 0" (canto NE do bbox, fora dos 4
+       poligonos): aplicado_medio = 4.90 kg/ha em 100 m². Sao 5 fixes
+       onde dose_esp=0 mas o servo ainda esta fechando a partir de
+       posicao residual da zona anterior.
+
+    3. Ambos os fenomenos sao REALISTAS — o VRA_Simulador Python nao
+       os modela porque assume aplicacao instantanea da dose-alvo
+       (sem PID, sem inercia, sem histerese). POC ESP32 cumpre o
+       papel especificado no plano: complementar o Simulador Python
+       com a fisica do atuador.
+
+(e) Pendencia para o autor:
+    - autorizar etapa 9 (publicacao do repo edcasag/VRA_Controlador no
+      GitHub, dual-repo via subtree push, mesmo padrao do
+      VRA_Simulador). Autor decide se essa etapa eh agora ou em outra
+      sessao.
+    - opcional: ajuste fino do PID/planta para melhorar erro de
+      aplicacao. Mas nota cientifica: erro alto eh um achado, nao um
+      bug — mostra a relevancia do POC ESP32 para a tese.

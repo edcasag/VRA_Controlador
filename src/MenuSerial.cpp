@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <set>
 
 #include "i18n.h"
 
@@ -33,26 +34,36 @@ std::string nomeBase(const std::string& kml) {
 
 int MenuSerial::descobrir() {
     opcoes_.clear();
+    // Pass unico: lista TODOS os arquivos do raiz, separa em KMLs +
+    // conjunto de CSVs disponiveis. Evita LittleFS.exists() que loga
+    // "[E][vfs_api] open(): ... does not exist" via printf direto (nao
+    // capturado por esp_log_level_set).
+    std::set<std::string> csvs;
+    std::vector<std::string> kmls;
+
     File raiz = LittleFS.open("/");
     if (!raiz || !raiz.isDirectory()) return 0;
-
     File f = raiz.openNextFile();
     while (f) {
         std::string nome = f.name();
-        // Remove prefixo / se vier (alguns drivers do LittleFS retornam "/x.kml")
         if (!nome.empty() && nome[0] == '/') nome.erase(0, 1);
         if (terminaCom(nome, ".kml") || terminaCom(nome, ".KML")) {
-            OpcaoKml op;
-            op.nome = nome;
-            op.caminho = std::string("/") + nome;
-            const std::string base = nomeBase(nome);
-            op.csv_caminho = std::string("/trajetoria_") + base + ".csv";
-            op.tem_csv = LittleFS.exists(op.csv_caminho.c_str());
-            opcoes_.push_back(op);
+            kmls.push_back(nome);
+        } else if (terminaCom(nome, ".csv") || terminaCom(nome, ".CSV")) {
+            csvs.insert(std::string("/") + nome);
         }
         f = raiz.openNextFile();
     }
-    // Ordem alfabetica para previsibilidade do menu.
+
+    for (const auto& nome : kmls) {
+        OpcaoKml op;
+        op.nome = nome;
+        op.caminho = std::string("/") + nome;
+        const std::string base = nomeBase(nome);
+        op.csv_caminho = std::string("/trajetoria_") + base + ".csv";
+        op.tem_csv = csvs.count(op.csv_caminho) > 0;
+        opcoes_.push_back(op);
+    }
     std::sort(opcoes_.begin(), opcoes_.end(),
               [](const OpcaoKml& a, const OpcaoKml& b) { return a.nome < b.nome; });
     return static_cast<int>(opcoes_.size());

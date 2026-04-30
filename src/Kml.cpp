@@ -366,4 +366,26 @@ void Kml::imprimirCsv(Print& out) const {
     out.println(F("=== CSV END ==="));
 }
 
+bool Kml::bbox(double& xmin, double& ymin, double& xmax, double& ymax) const {
+    xmin = ymin = +1e18;
+    xmax = ymax = -1e18;
+    bool tem = false;
+    auto incluir = [&](double x, double y) {
+        if (x < xmin) xmin = x;
+        if (x > xmax) xmax = x;
+        if (y < ymin) ymin = y;
+        if (y > ymax) ymax = y;
+        tem = true;
+    };
+    if (talhao_carregado_) {
+        for (const auto& v : talhao_.vertices) incluir(v.x, v.y);
+    }
+    for (const auto& r : regioes_poly_) {
+        for (const auto& v : r.vertices) incluir(v.x, v.y);
+    }
+    for (const auto& c : regioes_circ_) incluir(c.centro.x, c.centro.y);
+    for (const auto& p : pontos_)        incluir(p.pos.x,    p.pos.y);
+    return tem;
+}
+
 }  // namespace vra

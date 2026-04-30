@@ -103,6 +103,17 @@ public:
         return true;
     }
 
+    // Variante que pula linhas com spreading=0 (curvas em U na cabeceira do
+    // boustrofedon Python). Necessario porque o port simplificado da
+    // Trajetoria no ESP32 nao gera arcos de curva — pula direto para a
+    // proxima faixa. Sincroniza ambos os lados em fixes "espalhando".
+    bool proximaLinhaComSpreading(LinhaCsv& out) {
+        while (proximaLinha(out)) {
+            if (out.spreading != 0) return true;
+        }
+        return false;
+    }
+
     void fechar() {
         if (arquivo_) arquivo_.close();
         n_linhas_ = 0;

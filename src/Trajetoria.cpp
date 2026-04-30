@@ -18,22 +18,23 @@ Trajetoria::Trajetoria(const Kml& kml, const Terreno& terreno,
 }
 
 void Trajetoria::calcularBbox() {
-    xmin_ = ymin_ = +1e18;
-    xmax_ = ymax_ = -1e18;
-    if (!kml_->talhaoCarregado()) {
+    // Usa o bbox union do KML (Talhao se existir + zonas + circulos + pontos),
+    // espelhando KmlData.bbox() do Python. Permite trajetoria em KMLs sem
+    // Field= explicito (ex.: ensaio_abcd.kml).
+    if (!kml_->bbox(xmin_, ymin_, xmax_, ymax_)) {
         terminou_ = true;
-        return;
-    }
-    for (const auto& v : kml_->talhao().vertices) {
-        xmin_ = std::min(xmin_, v.x);
-        xmax_ = std::max(xmax_, v.x);
-        ymin_ = std::min(ymin_, v.y);
-        ymax_ = std::max(ymax_, v.y);
     }
 }
 
 bool Trajetoria::dentroDoTalhao(double x, double y) const {
-    if (!kml_->talhaoCarregado()) return false;
+    // Sem Talhao explicito = sem clipping de campo (espelha o Python, que
+    // chama boustrophedon com field_polygon=None nesses casos). A trajetoria
+    // cobre todo o bbox e o atuador eh comandado a 0 nos pontos onde a
+    // LogicaHierarquica retorna 0 (fora de todas as zonas).
+    if (!kml_->talhaoCarregado()) {
+        (void)x; (void)y;
+        return true;
+    }
     return pointInPolygon(x, y, kml_->talhao().vertices);
 }
 
