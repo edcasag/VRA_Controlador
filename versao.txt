@@ -977,3 +977,73 @@ Sessao 2026-04-30 — Etapa 10 (cross-link _python <-> _esp32 + fix DOI _python)
     - nenhuma. v1.0.0 dos dois repos publicada com DOIs corretos
       (Concept estavel + Version imutavel) e cross-links bilaterais.
       Etapas 1-10 do plano fechadas em 2026-04-30.
+
+================================================================================
+Sessao 2026-04-30 — Imagens da tese nos repos publicos
+================================================================================
+
+(a) Arquivos criados/modificados:
+
+    Imagens copiadas de Dissertacao_Mestrado/images/ com nomes
+    normalizados (underscore-snake-case):
+
+    _esp32/images/  (~1 MB total)
+      - arquitetura_sistema.png         diagrama de blocos
+      - distribuidor_duplo_atuadores.jpg visao geral concreta (KML +
+                                         GPS + ESP32 + atuadores)
+      - controlador_vra_pcb.jpg         render 3D da placa EC-1.0
+      - esquema_prototipo.jpg           esquematico completo
+      - calibracao.jpg                  montagem fisica
+      - efeito_bull_eye.jpg             ilustracao IDW (nao
+                                         referenciada no README, fica
+                                         disponivel no repo p/ futuro)
+
+    _python/assets/  (~700 KB total)
+      - simulador_vra_1.jpg             ensaio A/B/C/D em andamento (PT)
+      - simulador_vra_2.jpg             ensaio com painel de relatorio
+                                         final (PT)
+      - vra_simulator_1.jpg             ensaio em andamento (EN, nao
+                                         referenciado)
+      - vra_simulator_2.jpg             ensaio com relatorio final (EN)
+
+    READMEs atualizados:
+      _esp32/README.md
+        - imagem hero (distribuidor_duplo_atuadores) apos badges
+        - nova secao "Arquitetura do sistema" (arquitetura_sistema)
+        - nova secao "Hardware" (PCB + esquematico + calibracao)
+        - entrada images/ na arvore de "Estrutura do repositorio"
+      _python/README.md
+        - simulador_vra_1.jpg apos tabela de "KMLs incluidos"
+        - simulador_vra_2.jpg apos tabela do "Lendo o relatorio"
+        - vra_simulator_2.jpg apos secao English "Report"
+        - screenshot_palmar.png mantido como hero
+
+(b) Operacoes git:
+    1. git commit -m "Imagens da tese nos repos publicos: arquitetura,
+       PCB e screenshots" -> commit no main da tese.
+    2. git subtree push --prefix=_esp32 \
+         https://github.com/edcasag/VRA_Controlador.git main
+       Push fast-forward (70dbb8f..71eb9a2).
+    3. git subtree push --prefix=_python \
+         https://github.com/edcasag/VRA_Simulador.git main
+       Push fast-forward (18d24c0..8c00ad7).
+
+(c) Decisoes:
+    - Imagens normalizadas para underscore-snake-case (alinhado com
+      o padrao dos KMLs em data/ e dos arquivos de codigo).
+    - 2 imagens copiadas mas nao referenciadas no README:
+      efeito_bull_eye.jpg (no _esp32) e vra_simulator_1.jpg (no
+      _python). Mantidas no repo para uso futuro (artigo, expansao
+      do README, etc.) — overhead pequeno (~200 KB combinados).
+    - Nao foram trazidas para os repos: imagens genericas do diretorio
+      Dissertacao_Mestrado/images/ que nao agregam aos repos publicos
+      (Fertilizer.jpg, VRA - Trator.jpg, trator.jpg, Sitio Vicosa.JPG,
+      Talhao KML*.JPG). Ficam restritas ao diretorio da tese.
+
+(d) Estado final dos repos publicos:
+    - edcasag/VRA_Controlador main = 71eb9a2 (HEAD)
+    - edcasag/VRA_Simulador  main = 8c00ad7 (HEAD)
+    - tags v1.0.0 inalteradas em ambos.
+
+(e) Pendencias para o autor:
+    - nenhuma.
