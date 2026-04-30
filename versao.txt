@@ -344,3 +344,37 @@ Sessão 2026-04-29 — Etapa 5 (vendor tinyxml2 + KMLs)
       mínimo); capturar saída Serial em docs/sample_output_analise.txt
       e docs/sample_output_tests.txt. O autor opera o hardware (PlatformIO
       + ESP32 + cabo USB).
+
+================================================================================
+Sessão 2026-04-29 — Etapa 6 (compilacao): fix conflito DEG_TO_RAD
+================================================================================
+
+(a) Arquivos modificados:
+    - _esp32/src/Geometria.h
+        DEG_TO_RAD -> GRAUS_PARA_RAD (4 ocorrencias).
+        Comentario explicando o porque.
+
+    Atualizados:
+    - _esp32/versao.txt   (esta entrada)
+
+(b) Dependencias: nenhuma.
+
+(c) Diagnostico do erro de compilacao reportado pelo autor:
+    Arduino.h (framework-arduinoespressif32) define DEG_TO_RAD como
+    macro:
+        #define DEG_TO_RAD 0.017453292519943295769236907684886
+    Quando main_analise.cpp inclui Arduino.h antes de Geometria.h, a
+    macro substitui textualmente o identificador do constexpr no header,
+    gerando "expected unqualified-id before numeric constant".
+
+    Correcao: renomeado o constexpr para GRAUS_PARA_RAD (PT-BR, alinhado
+    com o estilo do projeto). Documentado no proprio header.
+
+    Outros nomes conferidos (sem colisao):
+      - std::max/std::min sao usados qualificados; ESP32-Arduino nao
+        define min/max como macros (isso eh uma quirk do AVR).
+      - F("..."), digitalRead/Write, ledcAttach/Write, analogRead* etc.
+        sao do Arduino e estao corretamente usados.
+
+(d) Pendencia para o autor:
+    - rodar 'pio run' novamente (env: analise) e reportar saida.

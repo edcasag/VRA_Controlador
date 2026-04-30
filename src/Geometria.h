@@ -8,17 +8,18 @@
 
 namespace vra {
 
-constexpr double EARTH_RADIUS_M = 6371000.0;
-constexpr double DEG_TO_RAD     = 0.017453292519943295;  // M_PI / 180.0
+constexpr double EARTH_RADIUS_M  = 6371000.0;
+// Arduino.h define DEG_TO_RAD como macro -> nome alternativo aqui.
+constexpr double GRAUS_PARA_RAD  = 0.017453292519943295;  // M_PI / 180.0
 
 struct Coord { double lat; double lon; };
 struct Ponto { double x;   double y;   };
 
 inline Ponto projetar(Coord c, Coord origem) {
-    const double lat0_rad = origem.lat * DEG_TO_RAD;
+    const double lat0_rad = origem.lat * GRAUS_PARA_RAD;
     return Ponto{
-        (c.lon - origem.lon) * DEG_TO_RAD * std::cos(lat0_rad) * EARTH_RADIUS_M,
-        (c.lat - origem.lat) * DEG_TO_RAD * EARTH_RADIUS_M
+        (c.lon - origem.lon) * GRAUS_PARA_RAD * std::cos(lat0_rad) * EARTH_RADIUS_M,
+        (c.lat - origem.lat) * GRAUS_PARA_RAD * EARTH_RADIUS_M
     };
 }
 
