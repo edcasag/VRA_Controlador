@@ -4,6 +4,12 @@ Etapas da seção "Próximo passo imediato" do plano
 (C:\Users\Pichau\.claude\plans\creio-que-como-complemento-swirling-snail.md).
 Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
 
+================================================================================
+v1.0.0 FECHADA em 2026-04-30 (etapas 1-8 completas).
+Próxima ação: etapa 9 (publicação no GitHub edcasag/VRA_Controlador).
+Detalhes da próxima sessão no rodapé deste arquivo.
+================================================================================
+
 [x] 1. Inspecionar Receita.h e Calc.h do Syncat (D:\SynCAT\SynCAT\CNC\MINI\
        SyncatV3-Esp32\src\) apenas conceitualmente. Não copiar código nem
        nomes. Reusar somente conceitos do Cap. 6 da tese.
@@ -127,10 +133,24 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
              nao modela isso porque assume aplicacao instantanea da
              dose-alvo. POC ESP32 cumpre o papel de complementar.
 
-[ ] 9. Publicação do repositório:
-         - criar repo público novo edcasag/VRA_Controlador
-         - commit inicial, push, release v1.0.0
-         - estratégia dual-repo via subtree push (mesma do VRA_Simulador)
+[ ] 9. Publicação do repositório (PROXIMA SESSAO):
+         - criar repo público novo edcasag/VRA_Controlador no GitHub web
+           (autor faz; suficiente repo vazio, sem README)
+         - configurar dual-repo via subtree push a partir de _esp32/
+           (mesmo padrao usado com _python/ ↔ VRA_Simulador):
+             git subtree push --prefix=_esp32 \
+               git@github.com:edcasag/VRA_Controlador.git main
+         - tag v1.0.0 + release notes no GitHub web
+         - opcional: DOI Zenodo (precisa ativar webhook GitHub<->Zenodo
+           antes da release; mesmo padrao do VRA_Simulador
+           DOI 10.5281/zenodo.19893499)
+
+       Pre-requisito antes da publicacao:
+         - autor recompilar e capturar Sitio_Palmar standalone com bin
+           de 5 kg/ha + notas autoexplicativas no rodape (fix da ultima
+           sub-iteracao). Substituir placeholder na Captura 2 de
+           docs/sample_output_sim.txt. Recompilar = 'pio run -t upload',
+           KMLs/CSVs ja estao no FS.
 
 [ ] 10. Link cruzado no VRA_Simulador (Python):
          - atualizar _python/README.md com link para VRA_Controlador
@@ -138,3 +158,16 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
            ideal; ESP32 = POC com atuador físico (abertura, PID, fator
            de escoamento, saturação por vazão máxima — não modelados no
            Python)
+
+[ ] 11+. Melhorias futuras (v1.1+, opcionais):
+         - boustrofedon completo no ESP32 (offset_polygon + headland_pass,
+           +290 linhas C++) para Sitio Palmar irregular sem perda de
+           cobertura nas quinas.
+         - CSVs ground truth para Sitio_Palmar.kml e talhao_completo.kml
+           (atualmente so ensaio_abcd tem CSV; rodar
+           _python/scripts/export_trajectory_csv.py para gerar).
+         - tunar PID/planta para reduzir erro de aplicacao (mas nota:
+           erro alto eh achado cientifico — mostra a relevancia do POC
+           ESP32 vs simulador Python idealizado).
+         - testes automatizados que executem BUILD_SIM no CI
+           (PlatformIO test runner ou QEMU ESP32).
