@@ -8,6 +8,8 @@ Implementação em ESP32 do controlador de Aplicação em Taxa Variável (VRA) d
 
 Trabalho de pesquisa de Edson Casagrande no programa de pós-graduação em Engenharia de Computação da Escola Politécnica da USP (POLI/USP), sob orientação do Prof. Carlos Eduardo Cugnasca.
 
+![Visão geral do sistema](images/distribuidor_duplo_atuadores.jpg)
+
 ## Arquitetura
 
 ![Arquitetura do sistema](images/arquitetura_sistema.png)
@@ -69,6 +71,10 @@ PCB do controlador (placa EC-1.0):
 ![PCB do Controlador VRA](images/controlador_vra_pcb.jpg)
 
 Esquemático completo: [images/esquema_prototipo.jpg](images/esquema_prototipo.jpg).
+
+Montagem física para calibração (`m c1`/`m c2`/`m c3`):
+
+![Montagem para calibração](images/calibracao.jpg)
 
 ## Validação
 
