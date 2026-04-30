@@ -1,0 +1,251 @@
+# POC VRA_Controlador (ESP32) — log de progresso
+
+Projeto:  POC do controlador VRA em ESP32 DevKit V1.
+Versão:   v0.1 (em construção)
+Autor:    Edson Casagrande (edscasag@gmail.com)
+Início:   2026-04-29
+Plano:    C:\Users\Pichau\.claude\plans\creio-que-como-complemento-swirling-snail.md
+Repo:     edcasag/VRA_Controlador (a ser criado; dual-repo via subtree push,
+          espelhando edcasag/VRA_Simulador, DOI 10.5281/zenodo.19893499).
+Local:    _esp32/ (irmão de _python/)
+
+Padrão (mesmo de _revisao/versao.txt da tese):
+  Cada sessão registra:
+    (a) arquivos modificados / criados
+    (b) novas dependências (libs vendored, KMLs, etc.)
+    (c) decisões tomadas
+    (d) pendências para o autor
+
+================================================================================
+Sessão 2026-04-29 — Bootstrap do POC
+================================================================================
+
+(a) Arquivos criados:
+    - _esp32/todo.txt    (9 etapas da seção "Próximo passo imediato" do plano)
+    - _esp32/versao.txt  (este arquivo)
+
+(b) Dependências:
+    - nenhuma ainda (tinyxml2 e KMLs entram na etapa 5)
+
+(c) Decisões tomadas:
+    - confirmado escopo do plano: classes só Kml, LogicaHierarquica, Pid;
+      sem IHM, BT, WiFi, OTA, display; 3 envs PlatformIO (analise default,
+      poc, tests); KMLs em LittleFS com underscore no nome.
+    - terminologia canônica do Cap. 6 da tese (Kml, RegiaoPoligonal,
+      RegiaoCircular, PontoReferencia, LogicaHierarquica). Inspeção do
+      Syncat será só conceitual.
+    - leitura do Python (_python/src/main.py e _python/src/coverage_report.py)
+      confirma a fórmula da vazão (taxa × largura × vel / 600 kg/min) e
+      delimita o que o Python não modela: atuador, abertura, PID, fator de
+      escoamento, saturação por vazão máxima — todos cobertos pelo POC ESP32.
+
+(d) Pendências para o autor:
+    - confirmar começo da etapa 1 (inspeção conceitual do Syncat) e etapa 2
+      (início da escrita das classes Geometria.h, Kml, LogicaHierarquica, Pid).
+
+================================================================================
+Sessão 2026-04-29 — Etapa 1 (inspeção conceitual do Syncat)
+================================================================================
+
+(a) Arquivos modificados:
+    - _esp32/todo.txt    (etapa 1 marcada como [x])
+    - _esp32/versao.txt  (esta seção)
+
+(b) Dependências: nenhuma.
+
+(c) Conclusões da inspeção (sem cópia de código nem nomes):
+
+    Receita.h/.cpp (Syncat — proprietário):
+      Mistura tudo num objeto único. Estruturas misturando ponto isolado e
+      perímetro, runtime calcula "ponto representativo" por região. Cinco
+      variantes de métrica IDW (DW_POW, MANHATTAN, EUCLIDIANA, e versões
+      ao quadrado). Quatro formatos de import (CSV/JSON/KML/GeoJSON) com
+      convenções de nome por sufixo (R0_xx, RegionName=taxa). Limites
+      estáticos (MAX_GEO_POINTS=1000, MAX_REGIONS=10). Lat/lon cruamente,
+      sem projeção. Globais via ponteiro extern.
+      → POC: separação limpa em Talhao / RegiaoPoligonal / RegiaoCircular /
+        PontoReferencia, fiel à Tabela 4 do Cap. 6 da tese. Métrica IDW
+        única (Euclidiana p=2, raio 100 m, d_min 0,5 m). Só KML. Sem
+        globais (referência por parâmetro nas tasks). std::vector sem
+        teto estático. Lat/lon projetados para x,y na entrada da
+        LogicaHierarquica.
+
+    Calc.h/.cpp:
+      Implementa Fx = (Tx · V · L) / 600 em litros/min (líquido), com
+      derivação dimensional documentada. Validação numérica: 150 L/ha,
+      6 km/h, 14 m → 21 L/min ✓.
+      → Confirma matematicamente a fórmula do plano. POC opera em kg/min
+        (sólido), mesma matemática. Nenhuma divergência a resolver.
+
+    SynPid.h:
+      Multi-loop (MAX_PID_LOOPS=8), gain scheduling (gains_Normal/Strong),
+      tabela linearização RPM↔PWM com 10 pontos, zona morta paramétrica,
+      correção fuzzy, tipos POS/RPM, máquina de estados de calibração de
+      válvulas (Vc_INIT, Vc_FIND_ZM, Vc_WAIT_RPM_ZM, ...) embutida no PID.
+      Estrutura PID_ROT carrega ~30 campos.
+      → POC: PID header-only ~40 linhas. Kp/Ki/Kd, dt, saturação min/max,
+        anti-windup por clamping. Calibração é externa (3 rotinas no
+        main_poc.cpp); resultado entra em constexpr no código.
+
+    Exec.h:
+      Sete modos (MONITOR, AUTO, PGM, MAN, CALIB, PROD, PAR), ~30 comandos
+      via Bluetooth/teclas (x_Abr, x_Rec, x_Pid, x_Wifi, x_FC_Calibra etc.).
+      → POC: 4 modos (EXEC, CAL1, CAL2, CAL3), comandos minimalistas via
+        Serial USB ('m e', 'm c1', 'm c2', 'm c3'). Sem WiFi/BT/IHM.
+
+(d) Pendências para o autor:
+    - autorizar etapa 2: escrita do zero de Geometria.h, Kml.{h,cpp},
+      LogicaHierarquica.{h,cpp}, Pid.h, com terminologia da tese.
+
+================================================================================
+Sessão 2026-04-29 — Etapa 2 (escrita das classes-base)
+================================================================================
+
+(a) Arquivos criados (todos em _esp32/src/):
+    - Geometria.h            ~50 linhas, header-only
+    - Pid.h                  ~30 linhas, header-only
+    - Kml.h                  ~60 linhas
+    - Kml.cpp               ~280 linhas
+    - LogicaHierarquica.h    ~30 linhas
+    - LogicaHierarquica.cpp  ~70 linhas
+    Total: ~520 linhas C++17.
+
+    Atualizados:
+    - _esp32/todo.txt        (etapa 2 marcada como [x])
+    - _esp32/versao.txt      (esta seção)
+
+(b) Dependências introduzidas:
+    - tinyxml2 (incluída via #include "tinyxml2.h"). Vendoring para
+      _esp32/lib/tinyxml2/ acontece na etapa 5.
+    - Arduino.h, FS.h, LittleFS.h, Print.h (já presentes no framework
+      Arduino-ESP32).
+
+(c) Decisões de design tomadas:
+
+    1. Paridade matemática com Python (kml_parser.py + vra_engine.py):
+       - ray-casting com termo "+ 1e-30" idêntico ao Python (evita NaN
+         quando aresta é horizontal, yj == yi);
+       - IDW: std::pow(d, potencia) em vez de d*d, mesmo com p=2 fixo
+         (preserva paridade 1e-6 com Python; otimização do compilador
+         resolve em release);
+       - shoelace para polygonArea, Earth radius 6 371 000 m, projeção
+         equiretangular local com origem fixada pelo primeiro lat/lon
+         do KML — todos idênticos ao Python.
+
+    2. Parser de nomes Tab. 4 sem std::regex:
+       - regex pesa no ESP32 (compilação e tempo de match); usei find/
+         strtod manualmente. Trata os 4 padrões: "Label=Rate:Radius m",
+         "Rate:Radius m", "Label=Rate", "Rate". Sufixo "m" no raio é
+         opcional.
+
+    3. Print& como saída de imprimirSumario/imprimirCsv:
+       - aceita Serial, File, custom Print. Flexível para o env "analise"
+         (Serial) e futuros redirecionamentos. CSV com BEGIN/END como
+         pede o plano.
+
+    4. Talhao como struct única + flag talhaoCarregado():
+       - espelha "field_polygon: Field | None" do Python sem optional/
+         pointer global. Polígono sem tag de dose explícita é tratado
+         como Talhao com dose=0 (ex.: contorno do Sítio Viçosa) — só se
+         ainda não houver Field= explícito.
+
+    5. Hierarquia em LogicaHierarquica::dose, ordem fielmente do Python:
+       círculos -> polígonos exclusão -> polígonos inclusão (menor área
+       vence) -> IDW -> talhão (dose-base) -> 0.
+
+    6. Pid.h sem gains hardcoded:
+       - construtor recebe Kp/Ki/Kd/dt/saida_min/saida_max. Os gains
+         do plano (8.0, 1.5, 0.0, 0.1, -100, 100) ficam em main_poc.cpp
+         (etapa 3).
+
+(d) Pendências para o autor:
+    - validar nomes contra a Tabela 4 do Cap. 6 da tese (Talhao,
+      RegiaoPoligonal, RegiaoCircular, PontoReferencia) e a estrutura
+      de classes (Kml, LogicaHierarquica, Pid). Ajustar se a Tab. 4
+      usar terminologia ligeiramente diferente.
+    - autorizar etapa 3: entry points main_analise.cpp, main_poc.cpp
+      (com 4 modos exec/cal1/cal2/cal3 e tasks FreeRTOS) e main_tests.cpp
+      (9 testes cronometrados).
+
+================================================================================
+Sessão 2026-04-29 — Etapa 3 (entry points)
+================================================================================
+
+(a) Arquivos criados (todos em _esp32/src/):
+    - Atuador.h              ~70 linhas, header-only
+                              (TABELA_ABERTURA, posicao_alvo_para_taxa,
+                               abertura_em, posicao_para_abertura, AlvoAtuador)
+    - main_analise.cpp      ~110 linhas (env: analise)
+    - main_tests.cpp        ~270 linhas (env: tests, 9 testes cronometrados)
+    - main_poc.cpp          ~330 linhas (env: poc)
+
+    Atualizados:
+    - _esp32/todo.txt        (etapa 3 marcada como [x])
+    - _esp32/versao.txt      (esta seção)
+
+    Total acumulado nas etapas 2+3: ~1300 linhas C++17 (estimativa do
+    plano: ~1100; ligeiramente acima por causa do Atuador.h extraído e
+    dos comentários docs).
+
+(b) Dependências introduzidas:
+    - nenhuma nova além das da etapa 2.
+
+(c) Decisões de design tomadas:
+
+    1. Atuador.h extraído como header novo (não previsto explicitamente
+       no plano):
+       - TABELA_ABERTURA, FATOR_ESCOAMENTO_KG_MIN, LARGURA_M,
+         V_MIN_OPERACAO_KMH, abertura_em, posicao_para_abertura,
+         posicao_alvo_para_taxa, AlvoAtuador.
+       - Razão: testes 7 e 8 (env:tests) precisam dessa matemática sem
+         depender de hardware. Extraindo, evita-se duplicação no
+         main_tests.cpp e mantém DRY. As constantes que dependem de
+         hardware (V_MIN, V_MAX) ficam em main_poc.cpp.
+
+    2. AlvoAtuador struct retornando vazão, abertura, posição e flag
+       de saturação:
+       - permite log estruturado em main_poc.cpp e teste do flag
+         "saturou" no env:tests.
+
+    3. main_analise.cpp gera os 9 pontos demo a partir das próprias
+       features do KML (centróides do talhão, regiões poligonais,
+       circulares + variantes "fora" e "talhão+offset"). Funciona
+       genericamente para Sítio Palmar, ensaio_abcd, talhao_completo;
+       o autor lê a saída e valida os 7 cenários do Algoritmo 1.
+
+    4. main_tests.cpp constrói KMLs sintéticos in-memory via
+       carregarDoTexto() para os testes 1, 4 e 5. O teste 3 e 9 usam
+       o Sítio Palmar real (precisa LittleFS montado e arquivo presente).
+       Falha graciosa com [FAIL] se o KML não estiver no FS.
+
+    5. main_poc.cpp arquitetura FreeRTOS:
+       - task_controle no core 1 (50 Hz, periodo 20 ms via vTaskDelayUntil)
+       - task_logica   no core 0 (2 Hz,  periodo 500 ms)
+       - loop() drena fila_log, processa botões + comandos Serial,
+         executa calibrações blocking quando solicitadas.
+       - Variáveis compartilhadas (volatile uint8_t/float/bool, 32-bit
+         atômico no ESP32) — sem mutex.
+
+    6. NMEA parser inline (~30 linhas) só para $GPRMC/$GNRMC. Não usa
+       lib externa (TinyGPS++ etc.) — minimalismo.
+
+    7. Calibrações cal1/cal2/cal3 rodam blocking dentro de loop() com
+       modo_ctrl = CTRL_IDLE / CTRL_MANUAL_AV / CTRL_MANUAL_REC para
+       neutralizar o PID. Após terminar, volta para MODO_EXEC com ativo
+       = false (operador precisa pressionar START).
+
+    8. Comando Serial: "m e" / "m c1" / "m c2" / "m c3" — minimalista,
+       parseado char-a-char. Outros comandos do plano não foram
+       implementados (sem necessidade no POC).
+
+    9. Critério 16 do plano (latência média ≤ 5 ms): bench no teste 9
+       usa N=1000 fixes sintéticos espalhados em raio 200 m do
+       centróide do talhão; reporta média + p95 e marca PASS se
+       média ≤ 5000 µs. Reproduzível por terceiros, citável no Cap.7.
+
+(d) Pendências para o autor:
+    - autorizar etapa 4: configurar platformio.ini com 3 envs
+      (analise default, poc, tests).
+    - confirmar valores em Atuador.h (TABELA_ABERTURA, FATOR_ESCOAMENTO_KG_MIN,
+      LARGURA_M, V_MIN_OPERACAO_KMH) — atualmente são placeholders do plano,
+      a serem refinados após calibração de campo (cal1/cal2/cal3).
