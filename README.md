@@ -9,7 +9,15 @@ POC em ESP32 do controlador de Aplicação em Taxa Variável (VRA), complementar
 
 Acompanha a dissertação de mestrado de Edson Casagrande na Escola Politécnica da USP (POLI/USP), orientação Prof. Carlos Eduardo Cugnasca, e o artigo apresentado no SBIAGRO 2025 ([PDF](docs/SBIAGRO2025_artigo.pdf), [slides](docs/SBIAGRO2025_apresentacao.pdf)).
 
+![Visão geral do sistema VRA_Controlador: KML no Google Earth → módulo ESP32 com GPS e WiFi → PWM aciona atuadores lineares X/Y dos discos espalhadores](images/distribuidor_duplo_atuadores.jpg)
+
 > 🇬🇧 **English version**: see the section [English](#english) at the end of this document.
+
+## Arquitetura do sistema
+
+![Arquitetura do sistema VRA_Controlador](images/arquitetura_sistema.png)
+
+O KML do Google Earth carrega zonas de manejo no PC/celular do operador. O módulo controle ESP32 recebe a posição do GNSS, executa a Lógica Hierárquica para determinar a dose-alvo no ponto atual, e aciona os atuadores via PWM. O laço fecha com feedback do potenciômetro do atuador (controle PID com planta de 1ª ordem).
 
 ## Complementaridade com o VRA_Simulador (Python)
 
@@ -96,6 +104,24 @@ Convenção dos nomes (campo `<name>` da Placemark KML):
 
 Espaços em torno do `=` e do `:` são tolerados. Quando duas zonas de inclusão se sobrepõem, **vence a de menor área**.
 
+## Hardware
+
+PCB do controlador (placa EC-1.0, projetada em torno do ESP32 DevKit V1):
+
+![PCB do Controlador VRA, placa EC-1.0](images/controlador_vra_pcb.jpg)
+
+Conectores: J1 (alimentação 5 V), J3 (MOSFETs/atuadores), J4 (displays I2C), J5 (encoder rotativo). Indicadores: LVCC (alimentação lógica), POWER (alimentação geral), L3V3/L5V (tensões), LCK (lock GPS), ANA (analógico).
+
+Esquemático completo (CONTROLADOR EC-1.0 — ESP32):
+
+![Esquemático completo do CONTROLADOR EC-1.0](images/esquema_prototipo.jpg)
+
+Blocos: FONTES (alimentação), ESP32 (módulo principal), ROTARY DY-040 (encoder), GPS (UART), DISPLAYS / I2C, SINAIS, ANALÓGICAS XY/LASER (4–20 mA), MOSFETS (drivers de PWM), ADC ANALÓGICAS, SAÍDAS.
+
+A calibração das três rotinas do `BUILD_POC` (cal1: extremos do potenciômetro; cal2: tabela posição→abertura; cal3: fator de escoamento) refere-se à seguinte montagem física:
+
+![Procedimento de calibração](images/calibracao.jpg)
+
 ## Estrutura do repositório
 
 ```text
@@ -120,6 +146,7 @@ Espaços em torno do `=` e do `:` são tolerados. Quando duas zonas de inclusão
 │   └── main_poc.cpp         # entry point BUILD_POC (FreeRTOS)
 ├── lib/tinyxml2/            # tinyxml2 vendored (zlib license)
 ├── data/                    # KMLs + CSVs ground truth (gravados no LittleFS via uploadfs)
+├── images/                  # diagramas, fotos do PCB, esquemático, calibração
 └── docs/
     ├── README.md                            # procedimento de upload + captura
     ├── cross_validation_python_vs_esp32.md  # validação cruzada (5 pontos + 2010 em massa)
