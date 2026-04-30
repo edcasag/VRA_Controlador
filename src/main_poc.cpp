@@ -39,6 +39,11 @@ constexpr int PIN_GPS_TX       = 17;  // UART2 TX -> GPS RX (não usado)
 constexpr int PWM_FREQ_HZ = 1000;
 constexpr int PWM_RES     = 8;       // 8-bit -> 0..255
 
+// Canais LEDC (Arduino-ESP32 2.0.x usa API ledcSetup/ledcAttachPin/ledcWrite
+// com canal; a API simplificada ledcAttach(pin, freq, res) eh do 3.x).
+constexpr int LEDC_CH_AVANCAR = 0;
+constexpr int LEDC_CH_RECUAR  = 1;
+
 // Extremos do potenciômetro (calibrar com cal1 e atualizar aqui).
 constexpr double V_MIN = 0.50;       // V no atuador 0% (recuado)
 constexpr double V_MAX = 2.70;       // V no atuador 100% (avançado)
@@ -93,16 +98,16 @@ double posicao_atual_pct() {
 }
 
 void pwm_avancar(int duty_0_255) {
-    ledcWrite(PIN_PWM_AVANCAR, duty_0_255);
-    ledcWrite(PIN_PWM_RECUAR, 0);
+    ledcWrite(LEDC_CH_AVANCAR, duty_0_255);
+    ledcWrite(LEDC_CH_RECUAR,  0);
 }
 void pwm_recuar(int duty_0_255) {
-    ledcWrite(PIN_PWM_RECUAR, duty_0_255);
-    ledcWrite(PIN_PWM_AVANCAR, 0);
+    ledcWrite(LEDC_CH_RECUAR,  duty_0_255);
+    ledcWrite(LEDC_CH_AVANCAR, 0);
 }
 void pwm_zerar() {
-    ledcWrite(PIN_PWM_AVANCAR, 0);
-    ledcWrite(PIN_PWM_RECUAR, 0);
+    ledcWrite(LEDC_CH_AVANCAR, 0);
+    ledcWrite(LEDC_CH_RECUAR,  0);
 }
 
 // ---------------------------------------------------------------------------
@@ -131,8 +136,9 @@ bool parse_rmc(const char* linha, Fix& fix) {
     char* tokens[13] = {};
     int n = 0;
     char* save = nullptr;
-    for (char* p = std::strtok_r(buf, ",", &save); p && n < 13;
-         p = std::strtok_r(nullptr, ",", &save)) {
+    // strtok_r eh POSIX (declarada em <string.h>), nao std::.
+    for (char* p = strtok_r(buf, ",", &save); p && n < 13;
+         p = strtok_r(nullptr, ",", &save)) {
         tokens[n++] = p;
     }
     if (n < 8) return false;
@@ -328,8 +334,10 @@ void setup_hardware() {
     pinMode(PIN_BTN_START, INPUT_PULLUP);
     pinMode(PIN_BTN_STOP,  INPUT_PULLUP);
     analogReadResolution(12);
-    ledcAttach(PIN_PWM_AVANCAR, PWM_FREQ_HZ, PWM_RES);
-    ledcAttach(PIN_PWM_RECUAR,  PWM_FREQ_HZ, PWM_RES);
+    ledcSetup(LEDC_CH_AVANCAR, PWM_FREQ_HZ, PWM_RES);
+    ledcSetup(LEDC_CH_RECUAR,  PWM_FREQ_HZ, PWM_RES);
+    ledcAttachPin(PIN_PWM_AVANCAR, LEDC_CH_AVANCAR);
+    ledcAttachPin(PIN_PWM_RECUAR,  LEDC_CH_RECUAR);
     pwm_zerar();
     Serial2.begin(9600, SERIAL_8N1, PIN_GPS_RX, PIN_GPS_TX);
 }

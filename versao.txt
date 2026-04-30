@@ -400,3 +400,26 @@ Sub-iteracao etapa 6 — fix std::clamp (env: tests)
 (c) Pendencia para o autor:
     - rodar novamente 'pio run -e tests' e depois 'pio run -e poc'
       para fechar o ciclo de fixes de compilacao.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 6 — fix env: poc (LEDC API antiga + strtok_r)
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/src/main_poc.cpp
+        * std::strtok_r -> strtok_r (POSIX, nao std::).
+        * ledcAttach(pin, freq, res) [API 3.x] -> ledcSetup(canal, freq, res)
+          + ledcAttachPin(pin, canal) [API 2.x].
+        * Adicionados constexpr LEDC_CH_AVANCAR = 0, LEDC_CH_RECUAR = 1.
+        * pwm_avancar/pwm_recuar/pwm_zerar agora chamam ledcWrite com
+          o canal LEDC, nao com o pino (era a forma 3.x).
+
+(b) Diagnostico: framework-arduinoespressif32 @ 3.20017.241212 corresponde
+    a Arduino-ESP32 2.0.17 (versionamento PlatformIO com offset). API LEDC
+    moderna (ledcAttach/ledcWrite por pino) so existe a partir do 3.x.
+    A API antiga (ledcSetup + ledcAttachPin + ledcWrite por canal) eh
+    estavel desde o 1.x; usei essa.
+
+(c) Pendencia para o autor:
+    - rodar 'pio run -e tests' (ja deve estar OK apos o fix de std::clamp)
+      e 'pio run -e poc' (com este fix). Reportar resultado.
