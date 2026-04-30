@@ -481,3 +481,52 @@ Sub-iteracao etapa 6 — confirmacao final: 3 modos compilam
     - monitor:               pio device monitor
     - capturar saida em _esp32/docs/sample_output_<modo>.txt
       Procedimento detalhado em _esp32/docs/README.md.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 6 — fix teste 5 (IDW simetrico) + captura BUILD_TESTS
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/src/main_tests.cpp   (teste_5_idw passa ym projetado em vez
+                                   de y=0 cru; comentario explicando)
+    - _esp32/docs/sample_output_tests.txt  (criado, saida 9/9 PASS)
+    - _esp32/todo.txt             (etapa 6 marcada [x])
+    - _esp32/versao.txt           (esta sub-iteracao)
+
+(b) Diagnostico do FAIL inicial do teste 5:
+    Primeira execucao no hardware: 8 PASS, 1 FAIL no teste 5 (IDW
+    simetrico, esperado 150.0). Causa: o teste passava y=0.0 cru para
+    logica.dose(xm, 0.0), mas pos.x/pos.y dos pontos de referencia
+    estao PROJETADOS em metros com origem no primeiro vertice do Field
+    (equiretangular local). Como o Field comeca em lat=-0.005, y=0
+    (lat=0) projetado fica em ~+555 m, longe dos pontos P1 e P2
+    (pos.y ~ +555 m). A distancia (~555 m) excede o raio IDW (100 m),
+    nenhum ponto contribui, e a funcao cai no fallback Field=0.
+
+    Fix: passar tambem ym = (p1.y + p2.y) / 2.0 (media projetada).
+    Mesmo padrao ja usado corretamente no teste 4 (cenario IDW).
+
+(c) Resultado apos fix (sample_output_tests.txt):
+    9 PASS, 0 FAIL.
+      - parser KML 7 padroes: 3,9 ms (1x na carga)
+      - pointInPolygon 8 casos: 13,9 us/op
+      - polygonArea (quadrado + Sitio Palmar 10,85 ha): 29 us/op
+      - LogicaHierarquica::dose 7 cenarios: 44,6 us/op
+      - IDW simetrico (P1=100, P2=200, ponto medio): 150,0 (PASS)
+      - PID degrau 0->100: convergiu em <= 20 iter
+      - tabela posicao<->abertura (identidade 1e-6): 16 us/op
+      - canonico (100 kg/ha, 5 km/h, 20 m): 20 us/op
+      - latencia ponta-a-ponta N=1000: media 73,4 us, p95 92 us.
+        Criterio do Cap. 7 (<= 5 ms): atendido com folga ~68x.
+
+    Numero de latencia (73,4 us / 92 us p95) eh dado bruto reproduzivel
+    por terceiros, citavel no Cap. 7 da tese sem dependencia do Syncat
+    proprietario.
+
+(d) Pendencia para o autor:
+    - opcional: capturar BUILD_POC com hardware completo (GPS + atuador
+      em bancada). Nao bloqueia v0.1 — etapa 6 fica fechada com analise
+      + tests.
+    - autorizar etapa 7: validacao cruzada Python <-> ESP32 (5 pontos
+      do Sitio Palmar, dose_at vs dose, tolerancia 1e-6, documentar em
+      docs/cross_validation_python_vs_esp32.md).

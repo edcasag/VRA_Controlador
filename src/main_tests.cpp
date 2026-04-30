@@ -220,10 +220,16 @@ void teste_5_idw() {
     if (!kml.carregarDoTexto(xml)) { reportar("5. IDW simetrico", false, 0); return; }
     vra::LogicaHierarquica logica(kml);
 
-    // Ponto exatamente equidistante dos dois (em y=0, no meio).
-    const double xm = (kml.pontosReferencia()[0].pos.x + kml.pontosReferencia()[1].pos.x) / 2.0;
+    // Ponto exatamente equidistante dos dois pontos de referência.
+    // Coordenadas em pos.x/pos.y estao projetadas em metros com origem no
+    // primeiro vertice do Field (equiretangular local), entao o ym tem que
+    // vir da mesma projecao — passar y=0 cru cai fora do raio IDW.
+    const auto& p1 = kml.pontosReferencia()[0].pos;
+    const auto& p2 = kml.pontosReferencia()[1].pos;
+    const double xm = (p1.x + p2.x) / 2.0;
+    const double ym = (p1.y + p2.y) / 2.0;
     const unsigned long t0 = micros();
-    const double d = logica.dose(xm, 0.0);
+    const double d = logica.dose(xm, ym);
     const double dt = micros() - t0;
     reportar("5. IDW simetrico (esperado 150.0)", aprox(d, 150.0, 1e-9), dt);
 }

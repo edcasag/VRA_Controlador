@@ -49,17 +49,25 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
        o LDF do PlatformIO. KMLs copiados de _python/data/. Detalhes em
        versao.txt.
 
-[/] 6. Compilar e fazer upload (autor):
+[x] 6. Compilar e fazer upload (autor):
          - pio run                              (analise)
          - pio run -e tests -t upload && monitor
          - capturar Serial → docs/sample_output_analise.txt
                               docs/sample_output_tests.txt
          - validação no hardware completo (env:poc) é opcional para v0.1
-       Parcial 2026-04-29 — compilação dos 3 modos OK (BUILD_ANALISE,
-       BUILD_TESTS, BUILD_POC). 6 fixes acumulados (DEG_TO_RAD, std::clamp,
-       LEDC API 2.x, strtok_r, refator 3 envs->1env). Falta: upload do
-       firmware/FS + captura de saída em docs/sample_output_*.txt.
-       Procedimento documentado em _esp32/docs/README.md.
+       Concluído 2026-04-29:
+         - BUILD_ANALISE capturado em docs/sample_output_analise.txt
+           (Sítio Palmar: 14 vértices, 10,85 ha, 6+1 polígonos, 2 círculos,
+           7 pontos IDW + 9 pontos demo cobrindo os 7 cenários do Algoritmo 1).
+         - BUILD_TESTS capturado em docs/sample_output_tests.txt
+           (9 PASS, 0 FAIL). Latência ponta-a-ponta: média 73,4 µs,
+           p95 92 µs — ~68× abaixo do critério ≤ 5 ms. Dado citável
+           no Cap. 7 da tese.
+         - 6 fixes de compilação (DEG_TO_RAD, std::clamp, LEDC 2.x,
+           strtok_r, refator 3 envs→1 env) + 1 fix de teste (teste 5
+           IDW simétrico: y projetado em vez de y=0 cru).
+         - BUILD_POC ficou opcional para v0.1 (precisa GPS + atuador
+           físico montados em bancada).
 
 [ ] 7. Validação cruzada Python ↔ ESP32:
          - rodar dose_at (Python) e dose (ESP32) para 5 pontos do
