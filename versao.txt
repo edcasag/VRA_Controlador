@@ -290,3 +290,57 @@ Sessão 2026-04-29 — Etapa 4 (platformio.ini + .gitignore)
     - autorizar etapa 5: vendor de tinyxml2 em _esp32/lib/ e cópia dos
       KMLs (Sitio_Palmar.kml, ensaio_abcd.kml, talhao_completo.kml) para
       _esp32/data/ com nomes em underscore.
+
+================================================================================
+Sessão 2026-04-29 — Etapa 5 (vendor tinyxml2 + KMLs)
+================================================================================
+
+(a) Arquivos criados:
+    - _esp32/lib/tinyxml2/tinyxml2.h     (74,463 bytes — original Lee Thomason)
+    - _esp32/lib/tinyxml2/tinyxml2.cpp   (78,977 bytes — original Lee Thomason)
+    - _esp32/lib/tinyxml2/library.json   (manifesto PlatformIO LDF)
+    - _esp32/data/Sitio_Palmar.kml       (26,194 bytes — copiado de
+                                          _python/data/Sitio Palmar.kml,
+                                          renomeado com underscore)
+    - _esp32/data/ensaio_abcd.kml         (1,558 bytes)
+    - _esp32/data/talhao_completo.kml     (3,019 bytes)
+
+    Atualizados:
+    - _esp32/todo.txt                     (etapa 5 marcada como [x])
+    - _esp32/versao.txt                   (esta seção)
+
+(b) Dependências introduzidas:
+    - tinyxml2 (Lee Thomason, www.grinninglizard.com), licença zlib
+      (cabeçalho dos próprios arquivos satisfaz atribuição). Não-MIT,
+      mas permissiva equivalente — compatível com publicação do
+      VRA_Controlador como software livre.
+
+(c) Decisões de design tomadas:
+
+    1. Vendoring direto dos 2 arquivos do tinyxml2-master usado pelo
+       Syncat (D:/SynCAT/SynCAT/CNC/MINI/SyncatV3-Esp32/lib/tinyxml2-master/),
+       pasta renomeada para tinyxml2/ (sem sufixo "-master"). Mesma
+       versão validada em produção.
+
+    2. library.json mínimo: name, version="vendored", license="Zlib",
+       homepage do upstream, frameworks="*" e platforms="*". srcDir="."
+       para LDF não precisar inferir.
+
+    3. KMLs com underscore no nome (evita escape em comandos Serial e
+       no LittleFS.open). Sitio Palmar.kml -> Sitio_Palmar.kml.
+
+    4. Sanity check do Sitio_Palmar.kml:
+       - <Polygon> count = 8 (1 talhão Palmar + 6 inclusão + 1 exclusão Sede)
+       - <Point> count   = 10 (2 círculos + 7 amostras + 1 LookAt? a
+                               diferença de 1 fica para a etapa 6 — a
+                               saída do imprimirSumario vai validar).
+       - 14 entradas no polígono Palmar (13 vértices únicos + fechamento)
+         => bate com criterio 4 do plano.
+       - Polígonos com espaços em torno do "=" (ex.: "Sede = 0",
+         "Cana = 120") são tolerados pelo trimCopia do parser.
+
+(d) Pendências para o autor:
+    - autorizar etapa 6: compilar e fazer upload (analise + tests no
+      mínimo); capturar saída Serial em docs/sample_output_analise.txt
+      e docs/sample_output_tests.txt. O autor opera o hardware (PlatformIO
+      + ESP32 + cabo USB).

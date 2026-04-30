@@ -40,10 +40,14 @@ Marcar [x] ao concluir; mover para [?] o que precisa de decisão do autor.
        também em tests (testes 3 e 9 leem Sitio_Palmar.kml). Detalhes
        em versao.txt.
 
-[ ] 5. Copiar dependências e dados:
+[x] 5. Copiar dependências e dados:
          - tinyxml2 (vendored) em _esp32/lib/tinyxml2/
          - KMLs em _esp32/data/ (nomes com underscore: Sitio_Palmar.kml,
            ensaio_abcd.kml, talhao_completo.kml)
+       Concluído 2026-04-29 — tinyxml2 zlib license (cabeçalho dos
+       próprios arquivos satisfaz atribuição). library.json criado para
+       o LDF do PlatformIO. KMLs copiados de _python/data/. Detalhes em
+       versao.txt.
 
 [ ] 6. Compilar e fazer upload (autor):
          - pio run                              (analise)
