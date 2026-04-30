@@ -28,13 +28,14 @@ keywords:
   - "KML"
   - "IDW interpolation"
 abstract: >-
-  POC em ESP32 do controlador de Aplicação em Taxa Variável (VRA),
-  complementar ao VRA_Simulador (Python). Lê zonas de manejo de um
-  KML do Google Earth, executa a Lógica Hierárquica (polígonos de
-  exclusão, polígonos de inclusão por menor área, IDW, talhão como
-  dose-base) e aciona um atuador linear via PID com modelo de planta
-  de 1ª ordem. Implementa o controlador descrito no artigo apresentado
-  no SBIAGRO 2025 (Casagrande & Cugnasca, 2025).
+  Implementação em ESP32 do controlador de Aplicação em Taxa Variável
+  (VRA) descrito no artigo apresentado no SBIAGRO 2025. Lê zonas de
+  manejo em arquivo KML do Google Earth, executa a Lógica Hierárquica
+  de seleção de dose e aciona um atuador linear via controle PID com
+  modelo de planta de 1ª ordem. Trabalho de pesquisa de Edson
+  Casagrande no programa de pós-graduação em Engenharia de Computação
+  da Escola Politécnica da USP (POLI/USP), sob orientação do Prof.
+  Carlos Eduardo Cugnasca.
 references:
   - type: conference-paper
     title: "Controlador de Taxa Variável para Distribuidores Agrícolas baseado em Google Earth e Interpolação IDW"
