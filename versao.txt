@@ -924,10 +924,56 @@ Sub-iteracao etapa 9 — DOI Zenodo + badge no README
     - Version DOI: 10.5281/zenodo.19922432
 
 (f) Pendencias para o autor:
-    - opcional: corrigir _python/README.md e _python/CITATION.cff que
-      usam 10.5281/zenodo.19893499 (Version DOI da v1.0.0 do
-      VRA_Simulador) onde deveria estar o Concept DOI 10.5281/zenodo.19893498.
-      Mesma correcao feita aqui no _esp32/. Aguardando autorizacao do
-      autor.
-    - autorizar etapa 10 (link cruzado no _python/ apontando pro
-      VRA_Controlador).
+    - (resolvido na sessao seguinte — ver "Sessao etapa 10".)
+
+================================================================================
+Sessao 2026-04-30 — Etapa 10 (cross-link _python <-> _esp32 + fix DOI _python)
+================================================================================
+
+(a) Arquivos modificados (em _python/, fora do diretorio do POC):
+    - _python/CITATION.cff   (DOI Version 19893499 -> Concept 19893498
+                              em 'doi:' e 'identifiers:'; descricao
+                              "Concept DOI" agora bate com o valor)
+    - _python/README.md      (badge dinamico apontando pro Concept DOI;
+                              4 ocorrencias do Version DOI substituidas
+                              pelo Concept; bloco "Veja tambem" / "See
+                              also" adicionado em pt e en com link pro
+                              VRA_Controlador, DOI Concept 19922431, e
+                              nota de uma frase sobre complementaridade)
+
+(b) Operacoes git:
+    1. git commit -m "VRA_Simulador: DOI Concept + cross-link para
+       VRA_Controlador" -> commit 42e030d no main da tese.
+    2. git subtree push --prefix=_python \
+         https://github.com/edcasag/VRA_Simulador.git main
+       Push fast-forward (6f630fc..18d24c0) — sem --force.
+
+(c) Decisoes tomadas:
+    - Cross-link textual curto (1 frase) na introducao de cada lado,
+      em vez de secao dedicada de complementaridade. Razao: o README
+      do _esp32 ja tem secao completa com tabela; replicar do lado
+      _python alongaria um README ja extenso. Uma frase + link basta
+      pra navegacao do leitor.
+    - Mantido o DOI principal como Concept (estavel) em badge,
+      cita\xe7\xe3o e BibTeX. Version DOI especifico nao mencionado no
+      _python (pra simplificar; quem precisa cita versao especifica
+      acessa pelo Zenodo direto).
+
+(d) Estado final dos repos publicos:
+
+    edcasag/VRA_Controlador (ESP32):
+      main = 70dbb8f
+      tag v1.0.0 = 5b893de
+      Concept DOI = 10.5281/zenodo.19922431
+      Version DOI v1.0.0 = 10.5281/zenodo.19922432
+
+    edcasag/VRA_Simulador (Python):
+      main = 18d24c0
+      tag v1.0.0 = (existente)
+      Concept DOI = 10.5281/zenodo.19893498
+      Version DOI v1.0.0 = 10.5281/zenodo.19893499
+
+(e) Pendencias para o autor:
+    - nenhuma. v1.0.0 dos dois repos publicada com DOIs corretos
+      (Concept estavel + Version imutavel) e cross-links bilaterais.
+      Etapas 1-10 do plano fechadas em 2026-04-30.
