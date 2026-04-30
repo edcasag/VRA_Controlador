@@ -1,9 +1,16 @@
+# Captura 1 — ensaio_abcd.kml (com CSV ground truth, validacao cruzada)
+# ----------------------------------------------------------------------
+# Modo "validacao cruzada Python <-> ESP32". CSV gerado pelo Python
+# (export_trajectory_csv.py) versionado em data/trajetoria_ensaio_abcd.csv.
+# Esperado: paridade PASS (max |delta| = 0 kg/ha em 2010 pontos), erro
+# de aplicacao alto vem da inercia mecanica do servo (ver versao.txt).
+
 === POC VRA_Controlador (env: sim) ===
 KMLs encontrados em /:
   1. Sitio_Palmar.kml             [CSV ground truth: nao]
   2. ensaio_abcd.kml              [CSV ground truth: SIM]
   3. talhao_completo.kml          [CSV ground truth: nao]
-Escolha [1-3]:
+Escolha [1-3]: 2
 Carregado: /ensaio_abcd.kml (4 zonas)
 CSV: /trajetoria_ensaio_abcd.csv
 Simulando: ........................................ concluido
@@ -25,5 +32,38 @@ Paridade Python <-> ESP32 (2010 pontos):
   max |delta_dose|: 0.00e+00 kg/ha
   divergencias > 1e-3 kg/ha: 0
   veredicto: PASS
+
+=== FIM ===
+
+
+# Captura 2 — Sitio_Palmar.kml (standalone, sem CSV ground truth)
+# ----------------------------------------------------------------------
+# Modo "simulacao standalone". Nao ha CSV ground truth para Sitio Palmar
+# na v1.0.0 (gerar com pio scripts/export_trajectory_csv.py se desejar).
+# Importante para o Cap. 7 da tese: latencia da LogicaHierarquica em
+# cenario REAL (6+1 poligonos + 2 circulos + 7 IDW samples) = ~71 us /
+# chamada — folga de ~70x sobre o criterio <= 5 ms do plano.
+#
+# NB: relatorio com 51 zonas na captura inicial (chaves 115.3/115.5/etc
+# por interpolacao IDW continua) foi corrigido na sub-iteracao seguinte
+# com bin de 5 kg/ha em Relatorio::chaveZona. Recapturar para confirmar.
+
+=== POC VRA_Controlador (env: sim) ===
+KMLs encontrados em /:
+  1. Sitio_Palmar.kml             [CSV ground truth: nao]
+  2. ensaio_abcd.kml              [CSV ground truth: SIM]
+  3. talhao_completo.kml          [CSV ground truth: nao]
+Escolha [1-3]: 1
+Carregado: /Sitio_Palmar.kml (7 zonas)
+Sem CSV ground truth — rodando standalone
+Simulando: ............................................. concluido
+
+=== RELATORIO FINAL ===
+(captura sera substituida apos recompile com bin de 5 kg/ha)
+
+Globais:
+  Erro % global ponderado: 33.17%
+  Latencia logica.dose():  ~71.4 us / chamada
+  Latencia PID:            ~5.2 us / iteracao
 
 === FIM ===

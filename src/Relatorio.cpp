@@ -9,8 +9,13 @@ namespace vra {
 
 namespace {
 
-// Chave canonica de zona = arredondado para 1 casa decimal.
-inline double chaveZona(double alvo) { return std::round(alvo * 10.0) / 10.0; }
+// Chave canonica de zona = bin de 5 kg/ha.
+// Em KMLs com Field= explicito ou doses inteiras (ex.: ensaio_abcd 60/75/
+// 90/100), o bin nao agrega nada (cada zona vira uma chave separada).
+// Em KMLs com IDW interpolado (Sitio Palmar: ~50 valores fracionarios
+// proximos), agrupa interpolacoes da mesma vizinhanca de samples, evitando
+// uma "zona" por fixe (que poluia o relatorio com 51 linhas de 1 fixe cada).
+inline double chaveZona(double alvo) { return std::round(alvo / 5.0) * 5.0; }
 
 }  // namespace
 

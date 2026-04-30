@@ -763,3 +763,51 @@ Sub-iteracao etapa 8 — fixes pos-primeira-execucao no HW
     - opcional: ajuste fino do PID/planta para melhorar erro de
       aplicacao. Mas nota cientifica: erro alto eh um achado, nao um
       bug — mostra a relevancia do POC ESP32 para a tese.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 8 — bin de 5 kg/ha + captura Sitio Palmar standalone
+--------------------------------------------------------------------------------
+
+(a) Arquivos modificados:
+    - _esp32/src/Relatorio.cpp           (chaveZona usa bin de 5 kg/ha)
+    - _esp32/docs/sample_output_sim.txt  (adiciona Captura 2: Sitio
+                                          Palmar standalone, latencia
+                                          ~71 us/chamada da Logica
+                                          Hierarquica)
+    - _esp32/versao.txt                  (esta sub-iteracao)
+
+(b) Diagnostico do bug "51 zonas no relatorio do Sitio Palmar":
+    chaveZona = round(dose * 10) / 10 estava bin de 0.1 kg/ha. Para
+    KMLs com IDW interpolado (Sitio Palmar tem 7 samples gerando
+    valores fracionarios continuos como 115.3, 115.5, 115.6, 113.5...),
+    cada interpolacao virava uma "zona" nova com 1 fixe (20 m²).
+    Resultado: 51 linhas no relatorio, ilegivel.
+
+    Fix: chaveZona = round(dose / 5) * 5 (bin de 5 kg/ha). Agrupa
+    interpolacoes da mesma vizinhanca de samples; em ensaio_abcd
+    (doses inteiras 60/75/90/100) nao agrega nada.
+
+(c) Achado adicional do Sitio Palmar standalone (Cap. 7 da tese):
+
+    Latencia LogicaHierarquica::dose: ~71,4 us / chamada
+    em cenario realista com hierarquia COMPLETA:
+      - 1 talhao Field (14 vert, 10.85 ha)
+      - 6 poligonos de inclusao (Poor, Good, Nobre, Normal, Nova, Cana)
+      - 1 poligono de exclusao (Sede)
+      - 2 circulos de exclusao
+      - 7 pontos de referencia IDW
+
+    Folga de ~70x sobre o criterio <= 5 ms do plano. Numero citavel
+    no Cap. 7 da tese (junto com o ~20 us do ensaio_abcd e o bench
+    sintetico de 73 us do BUILD_TESTS).
+
+    Erro de aplicacao tambem alto no Sitio Palmar (33.17% global),
+    confirmando o achado da Captura 1: o gargalo eh o servo, nao o
+    algoritmo.
+
+(d) Pendencia para o autor:
+    - rodar 'pio run -t upload' (so firmware, KMLs/CSVs ja no FS).
+    - 'pio device monitor', escolher opcao 1 (Sitio Palmar).
+    - capturar o relatorio com bin de 5 kg/ha e colar substituindo
+      o placeholder na Captura 2 de docs/sample_output_sim.txt.
+    - se OK, autorizar etapa 9 (publicacao GitHub).
