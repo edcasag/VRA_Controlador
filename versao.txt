@@ -456,3 +456,28 @@ Sub-iteracao etapa 6 — refator: 1 env unico + macro -DBUILD_X
       platformio.ini). Confirmar que compila e o pragma aparece no console.
     - depois trocar para BUILD_TESTS, rodar 'pio run', confirmar.
     - depois BUILD_POC, idem.
+
+--------------------------------------------------------------------------------
+Sub-iteracao etapa 6 — confirmacao final: 3 modos compilam
+--------------------------------------------------------------------------------
+
+(a) Resultado:
+    - BUILD_ANALISE  -> SUCCESS (RAM 6,6% / Flash 27,6%)
+    - BUILD_TESTS    -> SUCCESS (RAM 6,6% / Flash 28,0%)
+    - BUILD_POC      -> SUCCESS (autor confirmou)
+
+    O #pragma message identifica claramente o modo no console de build.
+    Fixes de compilacao acumulados nesta etapa:
+      1. DEG_TO_RAD -> GRAUS_PARA_RAD (conflito com macro do Arduino.h)
+      2. std::clamp -> clamp_d via min/max (libstdc++ stripada do Xtensa)
+      3. ledcAttach (3.x) -> ledcSetup + ledcAttachPin (2.x)
+      4. ledcWrite por pino -> por canal (API 2.x)
+      5. std::strtok_r -> strtok_r (POSIX, nao std::)
+      6. Refator: 3 envs -> 1 env unico + macro -DBUILD_X (UX)
+
+(b) Pendencia para o autor:
+    - upload do firmware:    pio run -t upload
+    - upload dos KMLs no FS: pio run -t uploadfs
+    - monitor:               pio device monitor
+    - capturar saida em _esp32/docs/sample_output_<modo>.txt
+      Procedimento detalhado em _esp32/docs/README.md.
