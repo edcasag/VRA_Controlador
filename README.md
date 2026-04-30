@@ -1,5 +1,6 @@
 # VRA_Controlador
 
+[![DOI](https://zenodo.org/badge/1225653555.svg)](https://doi.org/10.5281/zenodo.19922431)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: ESP32](https://img.shields.io/badge/Platform-ESP32-blue.svg)](https://www.espressif.com/en/products/socs/esp32)
 [![PlatformIO](https://img.shields.io/badge/Build-PlatformIO-orange.svg)](https://platformio.org/)
@@ -154,12 +155,27 @@ Esse achado é o ponto da complementaridade ESP32 ↔ Python: o `VRA_Simulador` 
 
 ## Como citar
 
-Software:
+Software (use o **Concept DOI** permanente do Zenodo, que sempre aponta pra última versão):
 
 ```text
-Casagrande, E. (2026). VRA_Controlador (v1.0.0).
-https://github.com/edcasag/VRA_Controlador
+Casagrande, E. (2026). VRA_Controlador. Zenodo.
+https://doi.org/10.5281/zenodo.19922431
 ```
+
+BibTeX:
+
+```bibtex
+@software{casagrande2026vracontrolador,
+  author    = {Casagrande, Edson},
+  title     = {{VRA\_Controlador: POC em ESP32 do Controlador de Aplica\c{c}\~{a}o em Taxa Vari\'{a}vel}},
+  year      = 2026,
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19922431},
+  url       = {https://doi.org/10.5281/zenodo.19922431}
+}
+```
+
+Para citar uma versão **específica** (v1.0.0, DOI `10.5281/zenodo.19922432`), use o Version DOI listado em <https://zenodo.org/records/19922432>.
 
 Artigo correspondente (SBIAGRO 2025):
 
