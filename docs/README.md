@@ -1,8 +1,8 @@
 # Procedimento de upload e captura de saída
 
-Os 4 modos do POC compilam (ver `_esp32/versao.txt`). Esta pasta guarda
-as saídas reais capturadas no terminal via `pio device monitor` para os
-critérios de aceitação 1, 2 e 13 do plano.
+Procedimento de compilação, upload e captura de saída para os 4 modos
+do firmware. Esta pasta guarda as saídas reais capturadas no terminal
+via `pio device monitor` (`sample_output_*.txt`).
 
 ## Pré-requisitos
 
@@ -11,7 +11,7 @@ critérios de aceitação 1, 2 e 13 do plano.
 - Modo selecionado em `platformio.ini` (descomente a linha desejada de
   `build_flags`).
 
-## Procedimento (modo `BUILD_SIM` — default da v1.0.0, sem hardware extra)
+## Procedimento (modo `BUILD_SIM` — default, sem hardware extra)
 
 Modo plug-and-play: basta um ESP32 DevKit V1 + cabo USB. No boot, o
 firmware lista os `*.kml` encontrados no LittleFS e pede para escolher
@@ -121,8 +121,6 @@ Salvar em `_esp32/docs/sample_output_tests.txt`.
 
 Requer hardware adicional: GPS UBlox M8N em UART2, atuador linear DC com
 PWM bidir + feedback ADC potenciométrico, botões físicos START/STOP.
-**Opcional para v0.1** — o critério 3 do plano só exige que compile,
-não que tenha hardware completo.
 
 Comandos via terminal (linha + Enter):
 
