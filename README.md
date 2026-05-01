@@ -1,6 +1,6 @@
 # VRA_Controlador
 
-[![DOI](https://zenodo.org/badge/1225653555.svg)](https://doi.org/10.5281/zenodo.19922431)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19951135.svg)](https://doi.org/10.5281/zenodo.19951135)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: ESP32](https://img.shields.io/badge/Platform-ESP32-blue.svg)](https://www.espressif.com/en/products/socs/esp32)
 
@@ -86,7 +86,7 @@ Software (Concept DOI, aponta para a última versão):
 
 ```text
 Casagrande, E. (2026). VRA_Controlador. Zenodo.
-https://doi.org/10.5281/zenodo.19922431
+https://doi.org/10.5281/zenodo.19951135
 ```
 
 ```bibtex
@@ -95,8 +95,8 @@ https://doi.org/10.5281/zenodo.19922431
   title     = {{VRA\_Controlador}},
   year      = 2026,
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.19922431},
-  url       = {https://doi.org/10.5281/zenodo.19922431}
+  doi       = {10.5281/zenodo.19951135},
+  url       = {https://doi.org/10.5281/zenodo.19951135}
 }
 ```
 
@@ -120,7 +120,7 @@ Bibliotecas vendored: [tinyxml2](https://github.com/leethomason/tinyxml2) (licen
 
 ## Software relacionado
 
-[VRA_Simulador](https://github.com/edcasag/VRA_Simulador) — simulador em Python (DOI [10.5281/zenodo.19893498](https://doi.org/10.5281/zenodo.19893498)).
+[VRA_Simulador](https://github.com/edcasag/VRA_Simulador) — simulador em Python (DOI [10.5281/zenodo.19952166](https://doi.org/10.5281/zenodo.19952166)).
 
 ---
 
