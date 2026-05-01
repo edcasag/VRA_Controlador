@@ -1,0 +1,13 @@
+=== POC VRA_Controlador (env: tests) ===
+[PASS]  1. parser KML (Tab.4, 7 padroes)              3876.00 us/op
+[PASS]  2. pointInPolygon (8 casos)                   13.88 us/op
+[PASS]  3. polygonArea (quadrado + Sitio Palmar)      29.00 us/op
+[PASS]  4. LogicaHierarquica::dose (7 cenarios)       44.57 us/op
+[PASS]  5. IDW simetrico (esperado 150.0)             183.00 us/op
+[PASS]  6. PID degrau 0->100 (<= 20 iter)             7.00 us/op
+[PASS]  7. tabela posicao<->abertura (1e-6)           16.00 us/op
+[PASS]  8. canonico (100 kg/ha, 5 km/h, 20 m)         20.00 us/op
+9. latencia ponta-a-ponta (N=1000): media=73.4 us, p95=92 us  [<= 5000 us]
+[PASS]  9. latencia (criterio: media <= 5000 us)      73.44 us/op
+
+=== RESUMO: 9 PASS, 0 FAIL ===

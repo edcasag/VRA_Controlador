@@ -1,0 +1,68 @@
+=== POC VRA_Controlador (env: analise) ===
+=== KML SUMARIO ===
+Origem: lat=-23.3521368 lon=-46.9454401
+Talhao: 14 vertices, area = 10.85 ha, dose-base = 0 kg/ha
+Regioes poligonais: 6 inclusao + 1 exclusao
+  - Poor         dose=120   area=0.68 ha (7 vert.)
+  - Good         dose=100   area=1.83 ha (12 vert.)
+  - Nobre        dose=80    area=3.40 ha (8 vert.)
+  - Normal       dose=75    area=4.60 ha (14 vert.)
+  - Nova         dose=100   area=0.52 ha (7 vert.)
+  - Cana         dose=120   area=0.34 ha (5 vert.)
+  - Sede         dose=0     area=0.11 ha (6 vert.)
+Regioes circulares: 2 (inc=0, exc=2)
+  -              dose=0     raio=5.0 m  centro=(-154.1, -360.6)
+  -              dose=0     raio=5.0 m  centro=(-195.4, -241.0)
+Pontos de referencia: 7
+  -              dose=120   pos=(68.8, -452.1)
+  -              dose=100   pos=(-27.8, -414.6)
+  -              dose=80    pos=(-244.7, -461.4)
+  -              dose=75    pos=(-136.8, -415.3)
+  -              dose=100   pos=(-222.7, -312.6)
+  -              dose=120   pos=(-93.0, -515.2)
+  -              dose=0     pos=(-146.4, -259.8)
+
+=== CSV BEGIN ===
+tipo,label,dose_kg_ha,raio_m,vertices_ou_x,area_ha_ou_y
+talhao,Field,0,,14,10.8511
+poligono,Poor,120,,7,0.6776
+poligono,Good,100,,12,1.8267
+poligono,Nobre,80,,8,3.3987
+poligono,Normal,75,,14,4.5972
+poligono,Nova,100,,7,0.5155
+poligono,Cana,120,,5,0.3358
+poligono,Sede,0,,6,0.1111
+circular,,0,5.00,-154.15,-360.60
+circular,,0,5.00,-195.37,-240.97
+ponto,,120,,68.85,-452.07
+ponto,,100,,-27.84,-414.62
+ponto,,80,,-244.70,-461.37
+ponto,,75,,-136.82,-415.29
+ponto,,100,,-222.72,-312.58
+ponto,,120,,-92.97,-515.15
+ponto,,0,,-146.38,-259.84
+=== CSV END ===
+
+=== 9 PONTOS DEMO ===
+Cenarios cobertos (Algoritmo 1, artigo SBIAGRO 2025):
+  1. Regiao circular (qualquer dose)
+  2. Poligono de exclusao (dose==0)
+  3. Poligono de inclusao (dose>0)
+  4. Sobreposicao -> menor area vence
+  5. IDW por pontos de referencia
+  6. Talhao (dose-base)
+  7. Fora do talhao -> 0
+
+idx  cenario                   x (m)      y (m)    dose (kg/ha)
+---  ------------------------  ---------  ---------  -----------
+1    centroide do talhao         -132.12    -397.67        75.00
+2    centroide poly 'Poor'         42.52    -417.85       100.00
+3    centroide poly 'Good'        -25.34    -414.60       100.00
+4    centroide poly 'Nobre'      -217.70    -482.40        80.00
+5    centroide poly 'Normal'     -149.22    -383.01        75.00
+6    centroide poly 'Nova'       -218.67    -311.21       100.00
+7    centroide poly 'Cana'       -105.93    -511.95       120.00
+8    centroide poly 'Sede'       -149.59    -258.75         0.00
+9    centro circ ''              -154.15    -360.60         0.00
+
+=== FIM ===

@@ -1,0 +1,12 @@
+{
+    "name":        "tinyxml2",
+    "version":     "vendored",
+    "license":     "Zlib",
+    "description": "TinyXML-2 by Lee Thomason (www.grinninglizard.com). Vendored copy.",
+    "homepage":    "https://github.com/leethomason/tinyxml2",
+    "frameworks":  "*",
+    "platforms":   "*",
+    "build": {
+        "srcDir": "."
+    }
+}
