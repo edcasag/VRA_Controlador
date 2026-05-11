@@ -1,12 +1,18 @@
-// Modo BUILD_POC — sistema completo. GPS UBlox M8N em UART2 (NMEA), atuador
-// linear DC com PWM avançar/recuar + feedback ADC potenciométrico, PID em
-// posição, botões físicos START/STOP, 4 modos: EXEC, CAL1, CAL2, CAL3.
-// Selecionado via build_flags em platformio.ini: -DBUILD_POC.
+// Modo BUILD_POC — sistema completo. GPS UBlox M8N em UART2 (NMEA), sensor de
+// velocidade na roda do trator (GPIO 19, ímãs + Hall), atuador linear DC com
+// PWM avançar/recuar + feedback ADC potenciométrico, PID em posição, botões
+// físicos START/STOP, 4 modos: EXEC, CAL1, CAL2, CAL3. Selecionado via
+// build_flags em platformio.ini: -DBUILD_POC.
 //
 // Arquitetura FreeRTOS:
-//   task_logica  (core 0, 2 Hz):  GPS -> projeção -> dose -> vazão -> posicao_alvo
-//   task_controle(core 1, 50 Hz): ADC -> PID -> PWM
-//   loop() Arduino:               drena fila_log, lê botões, parse comandos Serial
+//   task_logica    (core 0, 2 Hz):  GPS -> projeção -> HDL -> rate_alvo
+//   task_velocidade(core 0, 10 Hz): sensor de roda -> vel_atual -> posicao_alvo
+//   task_controle  (core 1, 50 Hz): SensorRoda::tick + ADC -> PID -> PWM
+//   loop() Arduino:                 drena fila_log, lê botões, parse comandos Serial
+//
+// Fusão de velocidade: o sensor de roda é a fonte primária. Trator parado
+// (sem pulsos por > 1 s) faz vel_atual = 0 => abertura FECHA (regra de
+// segurança). GPS entra como fallback apenas se o sensor de roda falhar.
 //
 // Calibrações cal1->cal2->cal3 rodam blocking dentro do loop(); durante elas a
 // task_controle é desativada (modo_ctrl = CTRL_IDLE) e a task_logica não atualiza
@@ -26,6 +32,7 @@
 #include "Kml.h"
 #include "LogicaHierarquica.h"
 #include "Pid.h"
+#include "SensorRoda.h"
 
 namespace {
 
@@ -39,6 +46,8 @@ constexpr int PIN_BTN_START    = 32;
 constexpr int PIN_BTN_STOP     = 33;
 constexpr int PIN_GPS_RX       = 16;  // UART2 RX <- GPS TX
 constexpr int PIN_GPS_TX       = 17;  // UART2 TX -> GPS RX (não usado)
+constexpr int PIN_VEL_TRATOR   = 19;  // sensor de roda (esquema EC-1.0 REV02)
+// constexpr int PIN_FLUX      = 21;  // sensor de vazão (reservado, esquema EC-1.0 REV02)
 
 constexpr int PWM_FREQ_HZ = 1000;
 constexpr int PWM_RES     = 8;       // 8-bit -> 0..255
@@ -64,16 +73,22 @@ constexpr const char* CAMINHO_KML = "/Sitio_Palmar.kml";
 enum ModoCtrl : uint8_t  { CTRL_IDLE = 0, CTRL_PID, CTRL_MANUAL_AV, CTRL_MANUAL_REC };
 enum ModoApp  : uint8_t  { MODO_EXEC = 0, MODO_CAL1, MODO_CAL2, MODO_CAL3 };
 
-volatile float    posicao_alvo_pct = 0.0f;
-volatile uint8_t  modo_ctrl        = CTRL_IDLE;
-volatile uint8_t  modo_app         = MODO_EXEC;
-volatile bool     ativo            = false;
+volatile float    posicao_alvo_pct  = 0.0f;
+volatile uint8_t  modo_ctrl         = CTRL_IDLE;
+volatile uint8_t  modo_app          = MODO_EXEC;
+volatile bool     ativo             = false;
+
+// Cache para a fusão velocidade (10 Hz) x posição (2 Hz):
+volatile float    rate_alvo_cache    = 0.0f;   // gravado por task_logica
+volatile float    gps_vel_kmh_cache  = 0.0f;   // gravado por task_logica (fallback)
+volatile float    vel_atual_kmh      = 0.0f;   // gravado por task_velocidade
 
 struct MensagemLog { char texto[128]; };
 QueueHandle_t fila_log = nullptr;
 
-vra::Kml*               g_kml    = nullptr;
-vra::LogicaHierarquica* g_logica = nullptr;
+vra::Kml*               g_kml         = nullptr;
+vra::LogicaHierarquica* g_logica      = nullptr;
+vra::SensorRoda         g_sensor_roda;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -189,6 +204,9 @@ void task_controle(void*) {
     TickType_t t_anterior = xTaskGetTickCount();
 
     for (;;) {
+        // Polling do sensor de roda (50 Hz, suficiente para max ~5 Hz de pulsos).
+        g_sensor_roda.tick(millis());
+
         const uint8_t mc = modo_ctrl;
         if (mc == CTRL_PID) {
             const double pos    = posicao_atual_pct();
@@ -206,6 +224,35 @@ void task_controle(void*) {
     }
 }
 
+// task_velocidade — 10 Hz. Recompõe o setpoint de abertura a partir da
+// velocidade do sensor de roda (fonte primária) e do rate_alvo em cache.
+// Trator parado (sensor reporta zero) faz a abertura FECHAR imediatamente.
+void task_velocidade(void*) {
+    const TickType_t periodo = pdMS_TO_TICKS(100);
+    TickType_t t_anterior = xTaskGetTickCount();
+
+    for (;;) {
+        const uint8_t ma = modo_app;
+        if (ma == MODO_EXEC && ativo) {
+            const double vel_roda = g_sensor_roda.vel_kmh();
+            // Fusão: sensor de roda é primário; quando reporta zero, é parada
+            // confirmada e a abertura FECHA. GPS não entra como fallback nessa
+            // condição (regra de segurança).
+            const double vel = vel_roda;
+            vel_atual_kmh = static_cast<float>(vel);
+
+            const auto alvo = vra::posicao_alvo_para_taxa(
+                static_cast<double>(rate_alvo_cache), vel);
+            posicao_alvo_pct = static_cast<float>(alvo.posicao_pct);
+            // Mantém o PID ativo enquanto a aplicação está em execução; a
+            // condição "vel == 0" faz posicao_alvo_pct = 0 via
+            // posicao_alvo_para_taxa, e o PID conduz o atuador ao fechamento.
+            modo_ctrl = CTRL_PID;
+        }
+        vTaskDelayUntil(&t_anterior, periodo);
+    }
+}
+
 void task_logica(void*) {
     LeitorNmea nmea;
     const TickType_t periodo = pdMS_TO_TICKS(500);
@@ -217,23 +264,24 @@ void task_logica(void*) {
         const bool tem_fix = nmea.ler(fix);
 
         if (ma == MODO_EXEC && ativo && tem_fix && g_kml && g_logica) {
+            // Projeção + HDL. Atualiza rate_alvo_cache; o setpoint final é
+            // recomputado por task_velocidade (10 Hz) usando o sensor de roda.
             const auto p = vra::projetar(vra::Coord{fix.lat, fix.lon}, g_kml->origem());
             const unsigned long t0 = micros();
             const double rate = g_logica->dose(p.x, p.y);
-            const auto alvo = vra::posicao_alvo_para_taxa(rate, fix.vel_kmh);
             const long dt_us = micros() - t0;
 
-            posicao_alvo_pct = static_cast<float>(alvo.posicao_pct);
-            modo_ctrl        = CTRL_PID;
+            rate_alvo_cache   = static_cast<float>(rate);
+            gps_vel_kmh_cache = static_cast<float>(fix.vel_kmh);
 
-            log_msg("lat=%.6f lon=%.6f v=%.1f km/h | rate=%.0f kg/ha | "
-                    "alvo=%.1f%% real=%.1f%% | %ld us%s",
-                    fix.lat, fix.lon, fix.vel_kmh, rate,
-                    alvo.posicao_pct, posicao_atual_pct(), dt_us,
-                    alvo.saturou ? " [SAT]" : "");
+            log_msg("lat=%.6f lon=%.6f v_gps=%.1f km/h v_roda=%.1f km/h | "
+                    "rate=%.0f kg/ha | alvo=%.1f%% real=%.1f%% | hdl=%ld us",
+                    fix.lat, fix.lon, fix.vel_kmh, vel_atual_kmh, rate,
+                    posicao_alvo_pct, posicao_atual_pct(), dt_us);
         } else if (ma == MODO_EXEC && !ativo) {
-            modo_ctrl        = CTRL_IDLE;
-            posicao_alvo_pct = 0.0f;
+            modo_ctrl         = CTRL_IDLE;
+            posicao_alvo_pct  = 0.0f;
+            rate_alvo_cache   = 0.0f;
         }
         vTaskDelayUntil(&t_anterior, periodo);
     }
@@ -344,6 +392,7 @@ void setup_hardware() {
     ledcAttachPin(PIN_PWM_RECUAR,  LEDC_CH_RECUAR);
     pwm_zerar();
     Serial2.begin(9600, SERIAL_8N1, PIN_GPS_RX, PIN_GPS_TX);
+    g_sensor_roda.iniciar(PIN_VEL_TRATOR);
 }
 
 }  // namespace
@@ -371,8 +420,9 @@ void setup() {
     kml.imprimirSumario(Serial);
 
     fila_log = xQueueCreate(16, sizeof(MensagemLog));
-    xTaskCreatePinnedToCore(task_controle, "ctrl",   4096, nullptr, 5, nullptr, 1);
-    xTaskCreatePinnedToCore(task_logica,   "logica", 8192, nullptr, 3, nullptr, 0);
+    xTaskCreatePinnedToCore(task_controle,   "ctrl",       4096, nullptr, 5, nullptr, 1);
+    xTaskCreatePinnedToCore(task_velocidade, "velocidade", 4096, nullptr, 4, nullptr, 0);
+    xTaskCreatePinnedToCore(task_logica,     "logica",     8192, nullptr, 3, nullptr, 0);
 
     Serial.println(F("Comandos: 'm e' EXEC | 'm c1' CAL1 | 'm c2' CAL2 | 'm c3' CAL3"));
     Serial.println(F("Botoes: GPIO32 START | GPIO33 STOP"));

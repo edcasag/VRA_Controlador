@@ -4,7 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Platform: ESP32](https://img.shields.io/badge/Platform-ESP32-blue.svg)](https://www.espressif.com/en/products/socs/esp32)
 
-Implementação em ESP32 do controlador de Aplicação em Taxa Variável (VRA) descrito no artigo apresentado no SBIAGRO 2025 ([PDF](docs/SBIAGRO2025_artigo.pdf), [slides](docs/SBIAGRO2025_apresentacao.pdf)). Lê zonas de manejo em arquivo KML do Google Earth, executa a Lógica Hierárquica de seleção de dose e aciona um atuador linear via controle PID.
+Implementação em ESP32 do controlador de Aplicação em Taxa Variável (VRA) descrito no artigo apresentado no SBIAGRO 2025 ([PDF](docs/SBIAGRO2025_artigo.pdf), [slides](docs/SBIAGRO2025_apresentacao.pdf)). Lê zonas de manejo em arquivo KML do Google Earth, executa a Lógica Hierárquica de seleção de dose, mede a velocidade do trator por um sensor magnético na roda dianteira e aciona um atuador linear via controle PID com compensação contínua de velocidade.
+
+## Arquitetura de tasks (BUILD_POC)
+
+Três tarefas FreeRTOS, três frequências, papéis disjuntos:
+
+| Task | Frequência | Entrada | Saída |
+| --- | --- | --- | --- |
+| `task_logica` (core 0) | 2 Hz | GPS NMEA (lat, lon, vel de fallback) | `rate_alvo` pela HDL |
+| `task_velocidade` (core 0) | 10 Hz | Sensor de roda (GPIO 19, pulsos) | Recomputa `posicao_alvo_pct` com a velocidade fresca + `rate_alvo` em cache |
+| `task_controle` (core 1) | 50 Hz | ADC do potenciômetro do atuador + tick do sensor de roda | PWM via PID |
+
+Fusão de velocidade: o sensor de roda é a fonte primária. Trator parado (sem pulsos por > 1 s) faz `vel_atual = 0`, e a abertura do atuador FECHA por construção (segurança).
 
 Trabalho de pesquisa de Edson Casagrande no programa de pós-graduação em Engenharia de Computação da Escola Politécnica da USP (POLI/USP), sob orientação do Prof. Carlos Eduardo Cugnasca.
 
@@ -71,6 +83,21 @@ PCB do controlador (placa EC-1.0):
 ![PCB do Controlador VRA](images/controlador_vra_pcb.jpg)
 
 Esquemático completo: [images/esquema_prototipo.jpg](images/esquema_prototipo.jpg).
+
+Sinais externos do ESP32 (placa EC-1.0 REV02):
+
+| Sinal | GPIO | Função |
+| --- | --- | --- |
+| `VEL_TRATOR` | 19 | Sensor magnético na roda dianteira (pulsos pelos parafusos) |
+| `FLUX` | 21 | Sensor de vazão do insumo (reservado, ainda não usado) |
+| `GPS_RX` / `GPS_TX` | 16 / 17 | UART2 do receptor U-blox M8N |
+| `PWM_M1_P` / `PWM_M1_N` | 25 / 26 | Acionamento do atuador linear (avançar / recuar) |
+| `FEEDBACK_ADC` | 34 | Realimentação potenciométrica do atuador |
+| `BTN_START` / `BTN_STOP` | 32 / 33 | Botões físicos de operação |
+
+O sensor de roda passa pelo bloco SINAIS do esquema (condicionamento com resistor e diodo Zener), entregando ao ESP32 um sinal digital limpo.
+
+A constante `D_PNEU_MM` em `src/SensorRoda.h` deve ser ajustada ao pneu específico do trator (ensaio de referência: pneu aro 24, ~1000 mm de diâmetro externo, 8 parafusos por revolução).
 
 Montagem física para calibração (`m c1`/`m c2`/`m c3`):
 
